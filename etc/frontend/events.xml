@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+	<event name="controller_front_send_response_before">
+		<observer instance="Overdose\MagentoOptimizer\Observer\Frontend\Http\ResponseSendBefore" name="Overdose_MagentoOptimizer_observer_frontend_http_responsesendbefore_http_response_send_before"/>
+	</event>
+</config>

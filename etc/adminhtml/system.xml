@@ -1,0 +1,54 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+	<system>
+        <tab id="od_core" translate="label" sortOrder="10">
+            <label>Overdose</label>
+        </tab>
+		<section id="od_optimizer" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+			<label>Magento Optimizer</label>
+			<tab>od_core</tab>
+			<resource>Overdose_MagentoOptimizer::config_od_optimizer</resource>
+			<group id="general" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+				<label>General</label>
+				<field id="enable" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+					<label>Module Enable</label>
+					<comment/>
+					<source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+				</field>
+				<field id="exclude_controllers" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Exclude Controllers</label>
+					<frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludeControllers</frontend_model>
+					<backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+					<comment>Listed controllers will be unaffected from defer. Usage: {module}_{action}_{name}</comment>
+					<depends>
+						<field id="enable">1</field>
+					</depends>
+				</field>
+				<field id="exclude_path" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+					<label>Exclude Paths</label>
+					<frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludePaths</frontend_model>
+					<backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+					<comment>Listed path will be unaffected from defer. Usage: gear/bags.html</comment>
+					<depends>
+						<field id="enable">1</field>
+					</depends>
+				</field>
+                <field id="how_to" translate="label" type="label" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Help</label>
+                </field>
+			</group>
+		    <group id="base_url" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="20" translate="label">
+                <label>Base Url</label>
+                <field id="remove_base_url" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
+                    <label>Remove Base Url</label>
+                    <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludeBaseUrl</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Listed url path will be cleared from base url. Usage: {module}_{action}_{name}</comment>
+                    <depends>
+                        <field id="enable">1</field>
+                    </depends>
+                </field>
+            </group>
+        </section>
+	</system>
+</config>
