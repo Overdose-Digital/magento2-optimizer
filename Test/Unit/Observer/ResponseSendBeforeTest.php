@@ -10,11 +10,11 @@ class ResponseSendBeforeTest extends \PHPUnit\Framework\TestCase
 
     public function setUp(): void
     {
-        $this->observer = $this->getMockBuilder(\Overdose\MagentoOptimizer\Observer\Frontend\Http\ResponseSendBefore::class)
+        $this->observer = $this->getMockBuilder(\Overdose\MagentoOptimizer\Observer\Frontend\Http\ResponseSendBeforeOptimizeJS::class)
             ->disableOriginalConstructor()
             ->setMethods([
-                'checkControllersExceptions',
-                'checkPathExceptions',
+                'checkControllersIfExcluded',
+                'checkPathIfExcluded',
             ])
             ->getMock();
 
@@ -60,12 +60,12 @@ class ResponseSendBeforeTest extends \PHPUnit\Framework\TestCase
         $expected_result
     ) {
         $this->observer->expects($this->any())
-            ->method('checkControllersExceptions')
+            ->method('checkControllersIfExcluded')
             ->willReturn(
                 true
             );
         $this->observer->expects($this->any())
-            ->method('checkPathExceptions')
+            ->method('checkPathIfExcluded')
             ->willReturn(
                 true
             );
