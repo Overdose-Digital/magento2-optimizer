@@ -15,18 +15,17 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
     /**
      * @var SerializerInterface
      */
-    public $serializer;
+    protected $serializer;
 
     /**
      * @var Data
      */
-    public $dataHelper;
+    protected $dataHelper;
 
     /**
      * @var StoreManagerInterface
      */
     protected $storeManager;
-
 
     /**
      * ResponseSendBeforeOptimizeJS constructor.

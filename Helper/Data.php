@@ -9,6 +9,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const KEY_FIELD_EXCLUDE_PATH = 'exclude_path';
     const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE = 'move_js_bottom_page';
     const KEY_SCOPE_REMOVE_BASE_URL = 'remove_base_url';
+
     /**
      * Data constructor.
      * @param \Magento\Framework\App\Helper\Context $context
@@ -49,7 +50,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function isRemoveUrlEnabled()
     {
-        return (bool)$this->getConfig('enable', 'remove_base_url');
+        return (bool)$this->getConfig('enable', $this::KEY_SCOPE_REMOVE_BASE_URL);
     }
 
     /**
@@ -59,7 +60,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function isMoveJsEnabled()
     {
-        return (bool)$this->getConfig('enable', 'move_js_bottom_page');
+        return (bool)$this->getConfig('enable', $this::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE);
     }
-
 }
