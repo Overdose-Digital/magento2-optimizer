@@ -11,12 +11,12 @@ class AbstractObserver
     /**
      * @var SerializerInterface
      */
-    public $serializer;
+    protected $serializer;
 
     /**
      * @var Data
      */
-    public $dataHelper;
+    protected $dataHelper;
 
     /**
      * @var StoreManagerInterface

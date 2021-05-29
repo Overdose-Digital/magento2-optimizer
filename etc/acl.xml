@@ -6,7 +6,7 @@
 				<resource id="Magento_Backend::stores">
 					<resource id="Magento_Backend::stores_settings">
 						<resource id="Magento_Config::config">
-							<resource id="Overdose_MagentoOptimizer::config_od_optimizer" title="magentooptimizer"/>
+							<resource id="Overdose_MagentoOptimizer::config_od_optimizer" title="Magento Optimizer"/>
 						</resource>
 					</resource>
 				</resource>

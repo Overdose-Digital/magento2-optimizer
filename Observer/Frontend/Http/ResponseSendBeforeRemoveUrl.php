@@ -12,12 +12,12 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
     /**
      * @var SerializerInterface
      */
-    public $serializer;
+    protected $serializer;
 
     /**
      * @var Data
      */
-    public $dataHelper;
+    protected $dataHelper;
 
     /**
      * @var StoreManagerInterface
@@ -48,6 +48,7 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
         if ($this->dataHelper->isModuleEnabled()) {
             /** @var $request \Magento\Framework\App\Request\Http */
             $request = $observer->getEvent()->getRequest();
+
             if ($request->isAjax()) {
                 return false;
             }
