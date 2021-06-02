@@ -38,7 +38,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @return bool
      */
-    public function isModuleEnabled()
+    public function moduleIsSetFlag()
     {
         return (bool)$this->getConfig('enable');
     }
@@ -48,7 +48,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function isRemoveUrlEnabled()
+    public function removeUrlIsSetFlag()
     {
         return (bool)$this->getConfig('enable', $this::KEY_SCOPE_REMOVE_BASE_URL);
     }
@@ -58,7 +58,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function isMoveJsEnabled()
+    public function moveJsIsSetFlag()
     {
         return (bool)$this->getConfig('enable', $this::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE);
     }

@@ -28,39 +28,25 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
     protected $storeManager;
 
     /**
-     * ResponseSendBeforeOptimizeJS constructor.
-     * @param Data $dataHelper
-     * @param SerializerInterface $serializer
-     * @param StoreManagerInterface $storeManager
-     */
-    public function __construct(
-        Data $dataHelper,
-        SerializerInterface $serializer,
-        StoreManagerInterface $storeManager
-    ) {
-        parent::__construct($dataHelper, $serializer, $storeManager);
-    }
-
-    /**
      * @param Observer $observer
      * @return false
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function execute(Observer $observer)
     {
-        if ($this->dataHelper->isModuleEnabled()) {
+        if ($this->dataHelper->moduleIsSetFlag()) {
             /** @var $request \Magento\Framework\App\Request\Http */
             $request = $observer->getEvent()->getRequest();
             if ($request->isAjax()) {
                 return false;
             }
 
-            if ($this->dataHelper->isMoveJsEnabled()) {
-                if (! $this->checkControllersIfExcluded($observer, $this->dataHelper::KEY_FIELD_EXCLUDE_CONTROLLERS, $this->dataHelper::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
+            if ($this->dataHelper->moveJsIsSetFlag()) {
+                if (!$this->checkControllersIfExcluded($observer, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
                     return false;
                 }
 
-                if (! $this->checkPathIfExcluded($observer, $this->dataHelper::KEY_FIELD_EXCLUDE_PATH, $this->dataHelper::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
+                if (!$this->checkPathIfExcluded($observer, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
                     return false;
                 }
                 //move js to the bottom page
