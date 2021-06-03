@@ -25,7 +25,7 @@ class AbstractObserver
 
 
     /**
-     * ResponseSendBeforeOptimizeJS constructor.
+     * AbstractObserver constructor.
      * @param Data $dataHelper
      * @param SerializerInterface $serializer
      * @param StoreManagerInterface $storeManager
@@ -41,18 +41,18 @@ class AbstractObserver
     }
 
     /**
-     * @param $observer
+     * @param $request
      * @param $field
      * @param $scope
      * @return bool
      */
-    public function checkControllersIfExcluded($observer, $field, $scope)
+    public function checkControllersIfExcluded($request, $field, $scope)
     {
         $excluded_controllers = $this->serializer->unserialize($this->dataHelper->getConfig($field, $scope));
         if (!empty($excluded_controllers)) {
-            $current_path = $observer->getRequest()->getModuleName() . '_' .
-                $observer->getRequest()->getControllerName() . '_' .
-                $observer->getRequest()->getActionName();
+            $current_path = $request->getModuleName() . '_' .
+                $request->getControllerName() . '_' .
+                $request->getActionName();
             foreach ($excluded_controllers as $excluded_controller) {
                 if (trim($current_path) === trim($excluded_controller['controller_path'])) {
                     return false;
@@ -65,16 +65,16 @@ class AbstractObserver
     }
 
     /**
-     * @param $observer
+     * @param $request
      * @param $field
      * @param $scope
      * @return bool
      */
-    public function checkPathIfExcluded($observer, $field, $scope)
+    public function checkPathIfExcluded($request, $field, $scope)
     {
         $exclude_paths = $this->serializer->unserialize($this->dataHelper->getConfig($field, $scope));
         if (!empty($exclude_paths)) {
-            $request_uri = $observer->getRequest()->getRequestUri();
+            $request_uri = $request->getRequestUri();
             foreach ($exclude_paths as $exclude_path) {
                 if (trim($request_uri) === trim($exclude_path['path'])) {
                     return false;

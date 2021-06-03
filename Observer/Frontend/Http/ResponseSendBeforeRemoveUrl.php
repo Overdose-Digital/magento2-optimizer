@@ -4,27 +4,10 @@ namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Serialize\SerializerInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
 
 class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\Framework\Event\ObserverInterface
 {
-    /**
-     * @var SerializerInterface
-     */
-    protected $serializer;
-
-    /**
-     * @var Data
-     */
-    protected $dataHelper;
-
-    /**
-     * @var StoreManagerInterface
-     */
-    protected $storeManager;
-
     /**
      * @param Observer $observer
      * @return false
@@ -32,7 +15,7 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
      */
     public function execute(Observer $observer)
     {
-        if ($this->dataHelper->moduleIsSetFlag()) {
+        if ($this->dataHelper->isModuleEnabled()) {
             /** @var $request \Magento\Framework\App\Request\Http */
             $request = $observer->getEvent()->getRequest();
 
@@ -40,12 +23,12 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
                 return false;
             }
 
-            if ($this->dataHelper->removeUrlIsSetFlag()) {
-                if (!$this->checkControllersIfExcluded($observer, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
+            if ($this->dataHelper->isRemoveUrlEnabled()) {
+                if (!$this->checkControllersIfExcluded($request, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
                     return false;
                 }
 
-                if (!$this->checkPathIfExcluded($observer, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
+                if (!$this->checkPathIfExcluded($request, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
                     return false;
                 }
                 //remove base url
