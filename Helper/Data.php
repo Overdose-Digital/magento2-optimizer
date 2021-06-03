@@ -2,11 +2,13 @@
 
 namespace Overdose\MagentoOptimizer\Helper;
 
+use Magento\Store\Model\ScopeInterface;
+
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
     const CONFIG_PATH_PREFIX = 'od_optimizer';
     const KEY_FIELD_EXCLUDE_CONTROLLERS = 'exclude_controllers';
-    const KEY_FIELD_EXCLUDE_PATH = 'exclude_path';
+    const KEY_FIELD_EXCLUDE_PATH = 'exclude_paths';
     const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE = 'move_js_bottom_page';
     const KEY_SCOPE_REMOVE_BASE_URL = 'remove_base_url';
 
@@ -30,7 +32,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             self::CONFIG_PATH_PREFIX . '/' . $scope . '/' . $field,
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $store
         );
     }
@@ -38,9 +40,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @return bool
      */
-    public function moduleIsSetFlag()
+    public function isModuleEnabled()
     {
-        return (bool)$this->getConfig('enable');
+        return (bool)$this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/general/enable',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -48,9 +53,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function removeUrlIsSetFlag()
+    public function isRemoveUrlEnabled()
     {
-        return (bool)$this->getConfig('enable', $this::KEY_SCOPE_REMOVE_BASE_URL);
+        return (bool)$this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_REMOVE_BASE_URL . '/enable',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 
     /**
@@ -58,8 +66,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function moveJsIsSetFlag()
+    public function isMoveJsEnabled()
     {
-        return (bool)$this->getConfig('enable', $this::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE);
+        return (bool)$this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE . '/enable',
+            ScopeInterface::SCOPE_STORE
+        );
     }
 }

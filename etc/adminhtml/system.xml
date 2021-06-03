@@ -32,7 +32,7 @@
                         <field id="enable">1</field>
                     </depends>
                 </field>
-                <field id="exclude_path" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="exclude_paths" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Exclude Paths</label>
                     <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludePaths</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
@@ -61,7 +61,7 @@
                         <field id="enable">1</field>
                     </depends>
                 </field>
-                <field id="exclude_path" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="exclude_paths" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Exclude Paths</label>
                     <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludePaths</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
