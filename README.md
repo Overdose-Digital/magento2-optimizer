@@ -14,7 +14,7 @@ composer update overdose/module-magento-optimizer
 - Features can be turned on separately, or work both at the same time
 
 ## Configurations:
-- For excluding controller: add in the field "{module}_{action}_{name}", for example:"cms_index_index""
+- For excluding controller: add in the field `{module}_{action}_{name}`, for example:`cms_index_index`
 - For excluding paths: add in the field for example "/gear/bags.html"
 ## Additional
 ![img.png](img.png)
