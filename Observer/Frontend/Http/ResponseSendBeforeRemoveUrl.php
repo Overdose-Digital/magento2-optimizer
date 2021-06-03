@@ -3,6 +3,7 @@
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
@@ -27,7 +28,7 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
     /**
      * @param Observer $observer
      * @return false
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @throws NoSuchEntityException
      */
     public function execute(Observer $observer)
     {
@@ -54,9 +55,9 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
     }
 
     /**
-     * @param $body
-     * @return array|string|string[]|null
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
+     * @param $observer
+     * @return void
+     * @throws NoSuchEntityException
      */
     public function removeBaseUrlFromBody($observer)
     {

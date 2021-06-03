@@ -30,7 +30,6 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
     /**
      * @param Observer $observer
      * @return false
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function execute(Observer $observer)
     {
@@ -57,7 +56,6 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
 
     /**
      * @param $observer
-     * @throws \Magento\Framework\Exception\NoSuchEntityException
      */
     public function moveJs($observer)
     {
