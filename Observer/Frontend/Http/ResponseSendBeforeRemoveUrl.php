@@ -15,25 +15,22 @@ class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\F
      */
     public function execute(Observer $observer)
     {
-        if ($this->dataHelper->isModuleEnabled()) {
+        if ($this->dataHelper->isRemoveUrlEnabled()) {
             /** @var $request \Magento\Framework\App\Request\Http */
             $request = $observer->getEvent()->getRequest();
-
             if ($request->isAjax()) {
                 return false;
             }
 
-            if ($this->dataHelper->isRemoveUrlEnabled()) {
-                if (!$this->checkControllersIfExcluded($request, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
-                    return false;
-                }
-
-                if (!$this->checkPathIfExcluded($request, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
-                    return false;
-                }
-                //remove base url
-                $this->removeBaseUrlFromBody($observer);
+            if (!$this->checkControllersIfExcluded($request, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
+                return false;
             }
+
+            if (!$this->checkPathIfExcluded($request, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_REMOVE_BASE_URL)) {
+                return false;
+            }
+            //remove base url
+            $this->removeBaseUrlFromBody($observer);
         }
     }
 
