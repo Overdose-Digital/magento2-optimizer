@@ -28,23 +28,12 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param string $scope
      * @return mixed
      */
-    public function getConfig($field, $scope = 'general', $store = null)
+    public function getConfig($field, $scope, $store = null)
     {
         return $this->scopeConfig->getValue(
             self::CONFIG_PATH_PREFIX . '/' . $scope . '/' . $field,
             ScopeInterface::SCOPE_STORE,
             $store
-        );
-    }
-
-    /**
-     * @return bool
-     */
-    public function isModuleEnabled()
-    {
-        return (bool)$this->scopeConfig->isSetFlag(
-            self::CONFIG_PATH_PREFIX . '/general/enable',
-            ScopeInterface::SCOPE_STORE
         );
     }
 

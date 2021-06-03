@@ -16,24 +16,22 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
      */
     public function execute(Observer $observer)
     {
-        if ($this->dataHelper->isModuleEnabled()) {
+        if ($this->dataHelper->isMoveJsEnabled()) {
             /** @var $request \Magento\Framework\App\Request\Http */
             $request = $observer->getEvent()->getRequest();
             if ($request->isAjax()) {
                 return false;
             }
 
-            if ($this->dataHelper->isMoveJsEnabled()) {
-                if (!$this->checkControllersIfExcluded($request, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
-                    return false;
-                }
-
-                if (!$this->checkPathIfExcluded($request, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
-                    return false;
-                }
-                //move js to the bottom page
-                $this->moveJs($observer);
+            if (!$this->checkControllersIfExcluded($request, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
+                return false;
             }
+
+            if (!$this->checkPathIfExcluded($request, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
+                return false;
+            }
+            //move js to the bottom page
+            $this->moveJs($observer);
         }
     }
 
