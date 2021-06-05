@@ -1,0 +1,19 @@
+{
+    "name": "overdose/module-magento-optimizer",
+    "description": "move js  to the end of page and remove base url",
+    "type": "magento2-module",
+    "license": [],
+    "require": {
+        "php": "^7.0",
+        "magento/framework": "*"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Overdose\\MagentoOptimizer\\": ""
+        }
+    },
+    "version": "1.0.0"
+}
