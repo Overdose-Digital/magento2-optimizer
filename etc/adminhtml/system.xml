@@ -49,6 +49,9 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <comment>Listed path will be unaffected from defer. Usage: /gear/bags.html</comment>
                 </field>
+                <field id="info" translate="label" type="label" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Info</label>
+                </field>
             </group>
         </section>
     </system>
