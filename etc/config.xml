@@ -4,10 +4,14 @@
 		<od_optimizer>
 			<move_js_bottom_page>
 				<enable>1</enable>
+                <exclude_controllers>[]</exclude_controllers>
+                <exclude_paths>[]</exclude_paths>
 				<how_to><![CDATA[Add attribute `nodefer` to prevent defer. For example: <script nodefer type="text/javascript"...]]></how_to>
 			</move_js_bottom_page>
 			<remove_base_url>
 				<enable>0</enable>
+                <exclude_controllers>[]</exclude_controllers>
+                <exclude_paths>[]</exclude_paths>
 				<info><![CDATA[Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.]]></info>
 			</remove_base_url>
 		</od_optimizer>
