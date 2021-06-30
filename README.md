@@ -1,7 +1,11 @@
 # Overdose Magento2 Optimizer
 
 ## Installation
-If NOT packagist, add repository first: `composer config repositories.overdose/module-magento-optimizer vcs git@github.com:Overdose-Digital/magento2-optimizer.git`
+If NOT packagist, add repository first:
+```
+composer config repositories.overdose/module-magento-optimizer vcs git@github.com:Overdose-Digital/magento2-optimizer.git
+```
+
 For all cases
 ```
 composer require overdose/module-magento-optimizer:v1.0.0 --no-update  (DISCLAYMER: check version before run this command)
