@@ -48,17 +48,20 @@ class AbstractObserver
      */
     public function checkControllersIfExcluded($request, $field, $scope)
     {
-        $excluded_controllers = $this->serializer->unserialize($this->dataHelper->getConfig($field, $scope));
-        if (!empty($excluded_controllers)) {
-            $current_path = $request->getModuleName() . '_' .
+        $isSet = $this->dataHelper->getConfig($field, $scope);
+        if ($isSet) {
+            $excludedControllers = $this->serializer->unserialize($isSet);
+        }
+        if (!empty($excludedControllers)) {
+            $currentPath = $request->getModuleName() . '_' .
                 $request->getControllerName() . '_' .
                 $request->getActionName();
-            foreach ($excluded_controllers as $excluded_controller) {
-                if (trim($current_path) === trim($excluded_controller['controller_path'])) {
+            foreach ($excludedControllers as $controller) {
+                if (trim($currentPath) === trim($controller['controller_path'])) {
                     return false;
                 }
             }
-            unset($excluded_controller);
+            unset($controller);
         }
 
         return true;
@@ -72,15 +75,18 @@ class AbstractObserver
      */
     public function checkPathIfExcluded($request, $field, $scope)
     {
-        $exclude_paths = $this->serializer->unserialize($this->dataHelper->getConfig($field, $scope));
-        if (!empty($exclude_paths)) {
-            $request_uri = $request->getRequestUri();
-            foreach ($exclude_paths as $exclude_path) {
-                if (trim($request_uri) === trim($exclude_path['path'])) {
+        $isSet = $this->dataHelper->getConfig($field, $scope);
+        if ($isSet) {
+            $excludePaths = $this->serializer->unserialize($isSet);
+        }
+        if (!empty($excludePaths)) {
+            $requestUri = $request->getRequestUri();
+            foreach ($excludePaths as $path) {
+                if (trim($requestUri) === trim($path['path'])) {
                     return false;
                 }
             }
-            unset($exclude_path);
+            unset($path);
         }
 
         return true;
