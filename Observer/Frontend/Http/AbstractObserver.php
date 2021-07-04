@@ -48,9 +48,9 @@ class AbstractObserver
      */
     public function checkControllersIfExcluded($request, $field, $scope)
     {
-        $is_set = $this->dataHelper->getConfig($field, $scope);
-        if ($is_set) {
-            $excluded_controllers = $this->serializer->unserialize($is_set);
+        $isSet = $this->dataHelper->getConfig($field, $scope);
+        if ($isSet) {
+            $excluded_controllers = $this->serializer->unserialize($isSet);
         }
         if (!empty($excluded_controllers)) {
             $current_path = $request->getModuleName() . '_' .
@@ -75,9 +75,9 @@ class AbstractObserver
      */
     public function checkPathIfExcluded($request, $field, $scope)
     {
-        $is_set = $this->dataHelper->getConfig($field, $scope);
-        if ($is_set) {
-            $exclude_paths = $this->serializer->unserialize($is_set);
+        $isSet = $this->dataHelper->getConfig($field, $scope);
+        if ($isSet) {
+            $exclude_paths = $this->serializer->unserialize($isSet);
         }
         if (!empty($exclude_paths)) {
             $request_uri = $request->getRequestUri();
