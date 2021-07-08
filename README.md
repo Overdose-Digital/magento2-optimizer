@@ -7,8 +7,9 @@ composer config repositories.overdose/module-magento-optimizer vcs git@github.co
 ```
 
 For all cases
+(DISCLAYMER: check version before run this command)
 ```
-composer require overdose/module-magento-optimizer:v1.0.0 --no-update  (DISCLAYMER: check version before run this command)
+composer require overdose/module-magento-optimizer --no-update
 composer update overdose/module-magento-optimizer
 ```
 
