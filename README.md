@@ -13,6 +13,8 @@ composer require overdose/module-magento-optimizer --no-update
 composer update overdose/module-magento-optimizer
 ```
 
+**‼️‼️ Ensure that default magento option `move_script_to_bottom` is disabled ‼️‼️**
+
 ## Functionality
 ### Main features
 - Optimizer moves all js script in the bottom of page, can be configured via adding controllers and paths (pages) which will not be affected 
