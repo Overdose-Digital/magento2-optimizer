@@ -35,24 +35,20 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
         }
     }
 
-    /**
-     * @param $observer
-     */
-    public function moveJs($observer)
+    public function moveJs(Observer $observer)
     {
+        $deferredJs = '';
         $response = $observer->getEvent()->getResponse();
-        $html = $response->getContent();
+        $html = preg_replace_callback(
+            static::JS_LOOK_FOR_STRING,
+            function ($script) use (&$deferredJs) {
+                $deferredJs .= $script[0];
 
-        preg_match_all(static::JS_LOOK_FOR_STRING, $html, $matches);
-        $js = '';
-
-        foreach ($matches[0] as $value) {
-            $js .= $value;
-        }
-
-        $html = preg_replace(static::JS_LOOK_FOR_STRING, '', $html);
-        $html = preg_replace('#</body>#', $js.'</body>', $html);
-
+                return '';
+            },
+            $response->getContent()
+        );
+        $html = str_replace('</body', $deferredJs . '</body', $html);
         $response->setContent($html);
     }
 }
