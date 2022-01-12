@@ -53,6 +53,25 @@
                     <label>Info</label>
                 </field>
             </group>
+            <group id="lazy_load_image" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="30" translate="label">
+                <label>Use Lazy Loading Images</label>
+                <field id="enable" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                    <label>Feature Enable</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="exclude_controllers" translate="label" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude Controllers</label>
+                    <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludeControllers</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Listed controllers will be unaffected from defer. Usage: {module}_{action}_{name}</comment>
+                </field>
+                <field id="exclude_paths" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude Paths</label>
+                    <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludePaths</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Listed path will be unaffected from defer. Usage: /gear/bags.html</comment>
+                </field>
+            </group>
         </section>
     </system>
 </config>
