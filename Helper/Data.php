@@ -11,6 +11,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const KEY_FIELD_EXCLUDE_PATH = 'exclude_paths';
     const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE = 'move_js_bottom_page';
     const KEY_SCOPE_REMOVE_BASE_URL = 'remove_base_url';
+    const KEY_SCOPE_LAZY_LOAD_IMAGE = 'lazy_load_image';
 
     /**
      * Data constructor.
@@ -59,6 +60,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return (bool)$this->scopeConfig->isSetFlag(
             self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE . '/enable',
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * Check if enabled feature "use default html attribute loading="lazy" for images"
+     *
+     * @return bool
+     */
+    public function isLazyLoadImageEnabled(): bool
+    {
+        return (bool)$this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_LAZY_LOAD_IMAGE . '/enable',
             ScopeInterface::SCOPE_STORE
         );
     }
