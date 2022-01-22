@@ -3,5 +3,6 @@
     <event name="controller_front_send_response_before">
         <observer instance="Overdose\MagentoOptimizer\Observer\Frontend\Http\ResponseSendBeforeOptimizeJS" name="od_optimizer_defer_js"/>
         <observer instance="Overdose\MagentoOptimizer\Observer\Frontend\Http\ResponseSendBeforeRemoveUrl" name="od_optimizer_remove_url"/>
+        <observer instance="Overdose\MagentoOptimizer\Observer\Frontend\Http\ResponseSendBeforeLazyLoadImage" name="od_optimizer_lazy_load_image"/>
     </event>
 </config>

@@ -1,6 +1,6 @@
 {
     "name": "overdose/module-magento-optimizer",
-    "description": "move js  to the end of page and remove base url",
+    "description": "move js to the end of page, remove base url and add lazy loading to all images",
     "type": "magento2-module",
     "license": [],
     "require": {
@@ -15,5 +15,5 @@
             "Overdose\\MagentoOptimizer\\": ""
         }
     },
-    "version": "1.0.2"
+    "version": "1.0.3"
 }
