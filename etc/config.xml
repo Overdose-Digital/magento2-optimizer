@@ -18,6 +18,11 @@
                     <![CDATA[Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.]]>
 				</info>
             </remove_base_url>
+            <lazy_load_image>
+                <enable>1</enable>
+                <exclude_controllers>[]</exclude_controllers>
+                <exclude_paths>[]</exclude_paths>
+            </lazy_load_image>
         </od_optimizer>
     </default>
 </config>

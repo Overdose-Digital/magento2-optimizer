@@ -2,6 +2,7 @@
 
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
+use Magento\Framework\App\Request\Http;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
@@ -90,5 +91,40 @@ class AbstractObserver
         }
 
         return true;
+    }
+
+    /**
+     * Check if loading=lazy attribute can be added to images
+     *
+     * @param Http $request
+     * @return bool
+     */
+    public function isAddLazyLoadToImage(Http $request): bool
+    {
+        if ($this->dataHelper->isLazyLoadImageEnabled()) {
+            if ($request->isAjax()) {
+                return false;
+            }
+
+            if (!$this->checkControllersIfExcluded(
+                $request,
+                Data::KEY_FIELD_EXCLUDE_CONTROLLERS,
+                Data::KEY_SCOPE_LAZY_LOAD_IMAGE
+            )) {
+                return false;
+            }
+
+            if (!$this->checkPathIfExcluded(
+                $request,
+                Data::KEY_FIELD_EXCLUDE_PATH,
+                Data::KEY_SCOPE_LAZY_LOAD_IMAGE
+            )) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
     }
 }
