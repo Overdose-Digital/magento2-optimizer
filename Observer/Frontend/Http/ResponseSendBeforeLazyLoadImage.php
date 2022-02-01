@@ -44,13 +44,15 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magen
 
         $newString =  preg_replace_callback(
             static::IMG_LAZY_LOADING_LOOK_FOR_STRING,
-            fn ($matches) => str_replace(
-                '<img ',
-                stripos($matches[0], '=\\') === false
-                    ? '<img loading="lazy" '
-                    : '<img loading=\"lazy\" ',
-                $matches[0]
-            ),
+            function ($matches) {
+                return str_replace(
+                    '<img ',
+                    stripos($matches[0], '=\\') === false
+                        ? '<img loading="lazy" '
+                        : '<img loading=\"lazy\" ',
+                    $matches[0]
+                );
+            },
             $response->getContent()
         );
 
