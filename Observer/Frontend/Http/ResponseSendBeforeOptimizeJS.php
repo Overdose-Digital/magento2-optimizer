@@ -2,13 +2,13 @@
 
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
+use Magento\Framework\Event\ObserverInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
 use Magento\Framework\Event\Observer;
 
-class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\Framework\Event\ObserverInterface
+class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
 {
     const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+.*?<\/script>)#is';
-    //const JS_LOOK_FOR_STRING = '#(<script.*?</script>)#is';
 
     /**
      * @param Observer $observer
@@ -23,11 +23,19 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
                 return false;
             }
 
-            if (!$this->checkControllersIfExcluded($request, Data::KEY_FIELD_EXCLUDE_CONTROLLERS, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
+            if (!$this->checkControllersIfExcluded(
+                $request,
+                Data::KEY_FIELD_EXCLUDE_CONTROLLERS,
+                Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE
+            )) {
                 return false;
             }
 
-            if (!$this->checkPathIfExcluded($request, Data::KEY_FIELD_EXCLUDE_PATH, Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE)) {
+            if (!$this->checkPathIfExcluded(
+                $request,
+                Data::KEY_FIELD_EXCLUDE_PATH,
+                Data::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE
+            )) {
                 return false;
             }
             //move js to the bottom page
@@ -35,6 +43,10 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements \Magento\
         }
     }
 
+    /**
+     * @param Observer $observer
+     * @return void
+     */
     public function moveJs(Observer $observer)
     {
         $deferredJs = '';
