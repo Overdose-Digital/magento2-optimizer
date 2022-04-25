@@ -8,16 +8,19 @@ declare(strict_types=1);
 
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
+use Magento\Framework\App\Request\Http as RequestHttp;
+use Magento\Framework\App\Response\Http as ResponseHttp;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 
 /**
  * ResponseSendBeforeLazyLoadImage class
  *
  * Used to add loading=lazy to all images
  */
-class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magento\Framework\Event\ObserverInterface
+class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements ObserverInterface
 {
-    const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?\sloading=)[^>]*>/';
+    const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?!\s+nolazy)(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?\sloading=)[^>]*>/';
 
     /**
      * Used to add loading=lazy to all images
@@ -25,9 +28,12 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magen
      * @param Observer $observer
      * @return void
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
-        if ($this->isAddLazyLoadToImage($observer->getEvent()->getRequest())) {
+        /** @var RequestHttp|null $request */
+        $request = $observer->getEvent()->getData('request');
+
+        if ($request && $this->isAddLazyLoadToImage($request)) {
             $this->addLazyLoadToImage($observer);
         }
     }
@@ -38,16 +44,21 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magen
      * @param Observer $observer
      * @return void
      */
-    public function addLazyLoadToImage(Observer $observer)
+    public function addLazyLoadToImage(Observer $observer): void
     {
-        $response = $observer->getEvent()->getResponse();
+        /** @var ResponseHttp|null $response */
+        $response = $observer->getEvent()->getData('response');
 
-        $newString =  preg_replace_callback(
+        if (!$response) {
+            return;
+        }
+
+        $content = preg_replace_callback(
             static::IMG_LAZY_LOADING_LOOK_FOR_STRING,
-            function ($matches) {
+            static function ($matches) {
                 return str_replace(
                     '<img ',
-                    stripos($matches[0], '=\\') === false
+                    false === stripos($matches[0], '=\\')
                         ? '<img loading="lazy" '
                         : '<img loading=\"lazy\" ',
                     $matches[0]
@@ -56,6 +67,6 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magen
             $response->getContent()
         );
 
-        $response->setContent($newString);
+        $response->setContent($content);
     }
 }
