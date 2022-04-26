@@ -29,6 +29,7 @@ composer update overdose/module-magento-optimizer
 
 - For excluding controller: add in the field `{module}_{action}_{name}`, for example:`cms_index_index`
 - For excluding paths: add in the field for example "/gear/bags.html"
+- For excluding image from lazy loading: add "nolazy" attribute to img tag
 
 ## Additional
 ![img.png](img.png)
