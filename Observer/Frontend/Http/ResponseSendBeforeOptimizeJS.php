@@ -13,7 +13,7 @@ use Magento\Framework\Event\Observer;
  */
 class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
 {
-    const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+.*?<\/script>)#is';
+    const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
 
     /**
      * @param Observer $observer
