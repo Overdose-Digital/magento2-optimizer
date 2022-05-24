@@ -20,7 +20,7 @@ use Magento\Framework\Event\ObserverInterface;
  */
 class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements ObserverInterface
 {
-    const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?!\s+nolazy)(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?\sloading=)[^>]*>/';
+    const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?(\sloading=|\snolazy[=,\s,\/]))[^>]*>/';
 
     /**
      * Used to add loading=lazy to all images
