@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.0] - 26-04-2022
 ### Added
 - Added the feature to skip lazy loading for images with attribute "nolazy"
+- Added the feature to skip lazy loading for images that contain HTML classes specified via system config
 ### Fixed
 - Fixed issues with cropped content during searching for scripts on a page.
 
