@@ -22,6 +22,8 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
 {
     const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?(\sloading=|\snolazy[=,\s,\/]))[^>]*>/';
 
+    const IMG_HAS_HTML_CLASS_REGEX_FORMAT = '/class=(("|"([^"]*)\s)(%s)("|\s([^"]*)")|(\'|\'([^\']*)\s)(%s)(\'|\s([^\']*)\'))/';
+
     /**
      * Used to add loading=lazy to all images
      *
@@ -53,20 +55,57 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
             return;
         }
 
+        $skipImagesPattern = $this->getSkipImageByHtmlClassPattern();
         $content = preg_replace_callback(
             static::IMG_LAZY_LOADING_LOOK_FOR_STRING,
-            static function ($matches) {
+            static function ($matches) use($skipImagesPattern) {
+                $imgHtml = $matches[0] ?? '';
+
+                if (preg_match($skipImagesPattern, stripslashes($imgHtml))) {
+                    return $imgHtml;
+                }
+
                 return str_replace(
                     '<img ',
-                    false === stripos($matches[0], '=\\')
+                    false === strpos($imgHtml, '=\\')
                         ? '<img loading="lazy" '
                         : '<img loading=\"lazy\" ',
-                    $matches[0]
+                    $imgHtml
                 );
             },
             $response->getContent()
         );
 
         $response->setContent($content);
+    }
+
+    /**
+     * @return string
+     */
+    private function getImgHtmlClassesForRegex(): string
+    {
+        return implode('|', [
+            'other123-class',
+            'abracadabra-class',
+            'gallery-placeholder__images',
+        ]);
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getSkipImageByHtmlClassPattern(): ?string
+    {
+        $classes = $this->getImgHtmlClassesForRegex();
+
+        if (empty($classes)) {
+            return null;
+        }
+
+        return sprintf(
+            self::IMG_HAS_HTML_CLASS_REGEX_FORMAT,
+            $classes,
+            $classes
+        );
     }
 }
