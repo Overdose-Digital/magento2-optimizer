@@ -61,17 +61,17 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
             static function ($matches) use($skipImagesPattern) {
                 $imgHtml = $matches[0] ?? '';
 
-                if (preg_match($skipImagesPattern, stripslashes($imgHtml))) {
+                if ($skipImagesPattern
+                    && preg_match($skipImagesPattern, stripslashes($imgHtml))
+                ) {
                     return $imgHtml;
                 }
 
-                return str_replace(
-                    '<img ',
-                    false === strpos($imgHtml, '=\\')
-                        ? '<img loading="lazy" '
-                        : '<img loading=\"lazy\" ',
-                    $imgHtml
-                );
+                $replace = false === strpos($imgHtml, '=\\')
+                    ? '<img loading="lazy" '
+                    : '<img loading=\"lazy\" ';
+
+                return str_replace('<img', $replace, $imgHtml);
             },
             $response->getContent()
         );
@@ -84,11 +84,7 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
      */
     private function getImgHtmlClassesForRegex(): string
     {
-        return implode('|', [
-            'other123-class',
-            'abracadabra-class',
-            'gallery-placeholder__images',
-        ]);
+        return implode('|', $this->getLazyLoadExcludeImageHtmlClass());
     }
 
     /**

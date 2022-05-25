@@ -127,4 +127,32 @@ class AbstractObserver
 
         return false;
     }
+
+    /**
+     * @return string[]
+     */
+    public function getLazyLoadExcludeImageHtmlClass(): array
+    {
+        try {
+            $value = $this->serializer->unserialize(
+                $this->dataHelper->getLazyLoadExcludeImageHtmlClassSerialized()
+            );
+        } catch (\Exception $e) {
+            $value = null;
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $result = [];
+
+        foreach ($value as $row) {
+            if ($htmlClass = $row['html_class'] ?? null) {
+                $result[] = $htmlClass;
+            }
+        }
+
+        return array_unique(array_filter($result));
+    }
 }
