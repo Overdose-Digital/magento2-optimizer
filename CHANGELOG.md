@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed issues with cropped content during searching for scripts on a page.
 
+## [1.0.5] - 21-06-2022
+### Changed
+- Removed php version requirement in composer.json
+
 ## [1.0.4] - 01-02-2022
 ### Fixed
 - Removed arrow function in lazy load to support PHP 7.3
