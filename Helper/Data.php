@@ -12,6 +12,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE = 'move_js_bottom_page';
     const KEY_SCOPE_REMOVE_BASE_URL = 'remove_base_url';
     const KEY_SCOPE_LAZY_LOAD_IMAGE = 'lazy_load_image';
+    const KEY_FIELD_EXCLUDE_IMAGE_HTML_CLASS = 'exclude_image_html_class';
 
     /**
      * Data constructor.
@@ -75,5 +76,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_LAZY_LOAD_IMAGE . '/enable',
             ScopeInterface::SCOPE_STORE
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getLazyLoadExcludeImageHtmlClassSerialized()
+    {
+        $path = implode('/', [
+            self::CONFIG_PATH_PREFIX,
+            self::KEY_SCOPE_LAZY_LOAD_IMAGE,
+            self::KEY_FIELD_EXCLUDE_IMAGE_HTML_CLASS,
+        ]);
+
+        return (string)$this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE);
     }
 }

@@ -71,6 +71,12 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <comment>Listed path will be unaffected from defer. Usage: /gear/bags.html</comment>
                 </field>
+                <field id="exclude_image_html_class" translate="label" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude Images by HTML Class</label>
+                    <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\ExcludeImageHtmlClass</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment>Listed HTML classes will be unaffected from lazy loading for images. Usage: gallery-placeholder__image</comment>
+                </field>
             </group>
         </section>
     </system>

@@ -22,6 +22,7 @@
                 <enable>1</enable>
                 <exclude_controllers>[]</exclude_controllers>
                 <exclude_paths>[]</exclude_paths>
+                <exclude_image_html_class><![CDATA[{"_1653491087836_836":{"html_class":"gallery-placeholder__image"}}]]></exclude_image_html_class>
             </lazy_load_image>
         </od_optimizer>
     </default>

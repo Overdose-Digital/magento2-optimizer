@@ -8,16 +8,21 @@ declare(strict_types=1);
 
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
+use Magento\Framework\App\Request\Http as RequestHttp;
+use Magento\Framework\App\Response\Http as ResponseHttp;
 use Magento\Framework\Event\Observer;
+use Magento\Framework\Event\ObserverInterface;
 
 /**
  * ResponseSendBeforeLazyLoadImage class
  *
  * Used to add loading=lazy to all images
  */
-class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magento\Framework\Event\ObserverInterface
+class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements ObserverInterface
 {
-    const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?\sloading=)[^>]*>/';
+    const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?(\sloading=|\snolazy[=,\s,\/]))[^>]*>/';
+
+    const IMG_HAS_HTML_CLASS_REGEX_FORMAT = '/class=(("|"([^"]*)\s)(%s)("|\s([^"]*)")|(\'|\'([^\']*)\s)(%s)(\'|\s([^\']*)\'))/';
 
     /**
      * Used to add loading=lazy to all images
@@ -25,9 +30,12 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magen
      * @param Observer $observer
      * @return void
      */
-    public function execute(Observer $observer)
+    public function execute(Observer $observer): void
     {
-        if ($this->isAddLazyLoadToImage($observer->getEvent()->getRequest())) {
+        /** @var RequestHttp|null $request */
+        $request = $observer->getEvent()->getData('request');
+
+        if ($request && $this->isAddLazyLoadToImage($request)) {
             $this->addLazyLoadToImage($observer);
         }
     }
@@ -38,24 +46,62 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements \Magen
      * @param Observer $observer
      * @return void
      */
-    public function addLazyLoadToImage(Observer $observer)
+    public function addLazyLoadToImage(Observer $observer): void
     {
-        $response = $observer->getEvent()->getResponse();
+        /** @var ResponseHttp|null $response */
+        $response = $observer->getEvent()->getData('response');
 
-        $newString =  preg_replace_callback(
+        if (!$response) {
+            return;
+        }
+
+        $skipImagesPattern = $this->getSkipImageByHtmlClassPattern();
+        $content = preg_replace_callback(
             static::IMG_LAZY_LOADING_LOOK_FOR_STRING,
-            function ($matches) {
-                return str_replace(
-                    '<img ',
-                    stripos($matches[0], '=\\') === false
-                        ? '<img loading="lazy" '
-                        : '<img loading=\"lazy\" ',
-                    $matches[0]
-                );
+            static function ($matches) use($skipImagesPattern) {
+                $imgHtml = $matches[0] ?? '';
+
+                if ($skipImagesPattern
+                    && preg_match($skipImagesPattern, stripslashes($imgHtml))
+                ) {
+                    return $imgHtml;
+                }
+
+                $replace = false === strpos($imgHtml, '=\\')
+                    ? '<img loading="lazy" '
+                    : '<img loading=\"lazy\" ';
+
+                return str_replace('<img', $replace, $imgHtml);
             },
             $response->getContent()
         );
 
-        $response->setContent($newString);
+        $response->setContent($content);
+    }
+
+    /**
+     * @return string
+     */
+    private function getImgHtmlClassesForRegex(): string
+    {
+        return implode('|', $this->getLazyLoadExcludeImageHtmlClass());
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getSkipImageByHtmlClassPattern(): ?string
+    {
+        $classes = $this->getImgHtmlClassesForRegex();
+
+        if (empty($classes)) {
+            return null;
+        }
+
+        return sprintf(
+            self::IMG_HAS_HTML_CLASS_REGEX_FORMAT,
+            $classes,
+            $classes
+        );
     }
 }
