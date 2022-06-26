@@ -4,7 +4,6 @@
     "type": "magento2-module",
     "license": [],
     "require": {
-        "php": "^7.0",
         "magento/framework": "*"
     },
     "autoload": {
