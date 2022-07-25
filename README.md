@@ -16,11 +16,11 @@ composer update overdose/module-magento-optimizer
 
 ## Functionality
 ### Main features
-- Optimizer moves all js script in the bottom of page, can be configured via adding controllers and paths (pages) which will not be affected. Add html attribute `nodefer` to JS to skip moving to the bottom.
-- Remove Base Url from pages, can be configured via adding controllers and paths (pages) which will not be affected. Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.
+- Moves all js script in the bottom of page. Add html attribute `nodefer` to JS to skip moving.
+- Remove Base Url from pages. Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.
 - Adds default html attribute `loading="lazy"` to all images. Add html attribute `nolazy` to image to skip loadind lazy.
 - Features can be turned on separately, or work both at the same time.
-- Features can be disabled for specific page by controller/action name or by URL path.
+- All features can be disabled for specific page by controller/action name or by URL path.
 
 ## Configurations:
 - `od_optimizer/move_js_bottom_page/*`. JS options. Enabled by default.
@@ -29,10 +29,10 @@ composer update overdose/module-magento-optimizer
 
 - For excluding controller: add in the field `{module}_{action}_{name}`, for example:`cms_index_index`
 - For excluding paths: add in the field for example "/gear/bags.html"
-- For excluding image from lazy loading: 
-  - add "nolazy" attribute to img tag
+- For excluding image from lazy loading use one of available methods: 
+  - add "nolazy" attribute to img tag (this image will be skiped)
   - add appropriate HTML class of image via system config  
-  `Configuration -> Magento Optimizer -> Use Lazy Loading Images -> Exclude Images by HTML Class`
+  `Configuration -> Magento Optimizer -> Use Lazy Loading Images -> Exclude Images by HTML Class` (images with this class will be skiped)
 
 ## Additional
 ![img.png](img.png)
