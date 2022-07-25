@@ -1,5 +1,7 @@
 # Overdose Magento2 Optimizer
 
+A module for improving web vital metrics.
+
 ## Installation
 If NOT packagist, add repository first:
 ```
