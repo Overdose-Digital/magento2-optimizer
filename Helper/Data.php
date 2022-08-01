@@ -5,6 +5,7 @@ namespace Overdose\MagentoOptimizer\Helper;
 use Magento\Framework\App\Helper\AbstractHelper;
 use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
+use Overdose\MagentoOptimizer\Model\Config\Source\Influence;
 
 class Data extends AbstractHelper
 {
@@ -37,7 +38,7 @@ class Data extends AbstractHelper
      * @param null $store
      * @return mixed
      */
-    public function getConfig($field, $scope, $store = null)
+    public function getConfig(string $field, string $scope, $store = null)
     {
         return $this->scopeConfig->getValue(
             self::CONFIG_PATH_PREFIX . '/' . $scope . '/' . $field,
@@ -51,7 +52,7 @@ class Data extends AbstractHelper
      *
      * @return bool
      */
-    public function isRemoveUrlEnabled()
+    public function isRemoveUrlEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(
             self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_REMOVE_BASE_URL . '/' . self::KEY_FIELD_ENABLE,
@@ -64,7 +65,7 @@ class Data extends AbstractHelper
      *
      * @return bool
      */
-    public function isMoveJsEnabled()
+    public function isMoveJsEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(
             self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE . '/' . self::KEY_FIELD_ENABLE,
@@ -90,7 +91,7 @@ class Data extends AbstractHelper
      *
      * @return bool
      */
-    public function isJsLoadDelayEnabled()
+    public function isJsLoadDelayEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(
             self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_JS_LOAD_DELAY . '/' . self::KEY_FIELD_ENABLE,
@@ -109,11 +110,11 @@ class Data extends AbstractHelper
     /**
      * @return string
      */
-    public function getJsDelayExcludedFiles()
+    public function getJsDelayExcludedFiles(): string
     {
         $excludedJsFiles = '';
 
-        if ($this->getConfig(self::KEY_FIELD_INFLUENCE, self::KEY_SCOPE_JS_LOAD_DELAY) == 1) {
+        if ($this->getJsDelayInfluenceMode() == Influence::ENABLE_ALL_VALUE) {
             $excludedJsFiles = $this->getConfig(
                 self::KEY_FIELD_INFLUENCE_EXCLUDE,
                 self::KEY_SCOPE_JS_LOAD_DELAY
@@ -126,11 +127,11 @@ class Data extends AbstractHelper
     /**
      * @return string
      */
-    public function getJsDelayIncludedFiles()
+    public function getJsDelayIncludedFiles(): string
     {
         $includedJsFiles = '';
 
-        if ($this->getConfig(self::KEY_FIELD_INFLUENCE, self::KEY_SCOPE_JS_LOAD_DELAY) == 2) {
+        if ($this->getJsDelayInfluenceMode() == Influence::ENABLE_CUSTOM_VALUE) {
             $includedJsFiles = $this->getConfig(
                 self::KEY_FIELD_INFLUENCE_INCLUDE,
                 self::KEY_SCOPE_JS_LOAD_DELAY
@@ -138,5 +139,13 @@ class Data extends AbstractHelper
         }
 
         return $includedJsFiles;
+    }
+
+    /**
+     * @return int
+     */
+    public function getJsDelayInfluenceMode(): int
+    {
+        return (int) $this->getConfig(self::KEY_FIELD_INFLUENCE, self::KEY_SCOPE_JS_LOAD_DELAY);
     }
 }
