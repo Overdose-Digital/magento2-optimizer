@@ -12,7 +12,7 @@ class Influence implements OptionSourceInterface
     /**
      * @return array
      */
-    public function toOptionArray()
+    public function toOptionArray(): array
     {
         return [
             ['value' => self::ENABLE_ALL_VALUE, 'label' => __('Enable For All')],

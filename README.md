@@ -20,12 +20,14 @@ composer update overdose/module-magento-optimizer
 - Remove Base Url from pages, can be configured via adding controllers and paths (pages) which will not be affected
 - Add default html attribute `loading="lazy"` to all images.
 - Features can be turned on separately, or work both at the same time.
-- Fetures can be disabled for specific page by controller/action name ot by URL path.
+- Features can be disabled for specific page by controller/action name ot by URL path.
+- Added features for adding a delay to loading JS scripts.
 
 ## Configurations:
 - `od_optimizer/move_js_bottom_page/*`. JS options. Enabled by default.
 - `od_optimizer/remove_base_url/*`. URL options. Disabled by default.
 - `od_optimizer/lazy_load_image/*`. Lazy image options. Enabled by default.
+- `od_optimizer/js_load_delay/*`. Load JS with delay options. Disabled by default.
 
 - For excluding controller: add in the field `{module}_{action}_{name}`, for example:`cms_index_index`
 - For excluding paths: add in the field for example "/gear/bags.html"
