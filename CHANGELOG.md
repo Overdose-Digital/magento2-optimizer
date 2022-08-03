@@ -4,7 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.0] - 26-04-2022
+## [1.1.1] - 04-08-2022
+### Fixed
+- Fixed issue with commented script element getting executed after being moved to bottom.
+
+## [1.1.0] - 26-06-2022
 ### Added
 - Added the feature to skip lazy loading for images with attribute "nolazy"
 - Added the feature to skip lazy loading for images that contain HTML classes specified via system config
