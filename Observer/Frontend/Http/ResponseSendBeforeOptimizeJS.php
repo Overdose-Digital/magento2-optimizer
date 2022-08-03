@@ -4,9 +4,9 @@ namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
 use Magento\Framework\App\Request\Http as RequestHttp;
 use Magento\Framework\App\Response\Http as ResponseHttp;
+use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
-use Magento\Framework\Event\Observer;
 
 /**
  * Class ResponseSendBeforeOptimizeJS
@@ -14,6 +14,7 @@ use Magento\Framework\Event\Observer;
 class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
 {
     const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
+    const JS_LOOK_FOR_COMMENTED_SCRIPT = '#(?<=<!--)(.*)(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)(.*)(?=-->)#';
 
     /**
      * @param Observer $observer
@@ -52,6 +53,7 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverI
         }
 
         $deferredJs = '';
+        $html = $this->removeCommentContainingScript($response->getContent());
         $html = preg_replace_callback(
             static::JS_LOOK_FOR_STRING,
             static function ($script) use (&$deferredJs) {
@@ -59,9 +61,23 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverI
 
                 return '';
             },
-            $response->getContent()
+            $html
         );
         $html = str_replace('</body', $deferredJs . '</body', $html);
         $response->setContent($html);
+    }
+
+    /**
+     * @param string $html
+     * @return string
+     */
+    private function removeCommentContainingScript($html): ?string
+    {
+        $stripped = preg_replace(
+            static::JS_LOOK_FOR_COMMENTED_SCRIPT,
+            '',
+            $html
+        );
+        return is_null($stripped) ? $html : $stripped;
     }
 }
