@@ -71,20 +71,26 @@ class ResponseSendBeforeOptimizeJSTest extends TestCase
     {
         return [
             'commented_script_only' => [
-                'html' => '<!-- <script> something </script> -->',
+                'html' => '<!-- <script> lorem ipsum dolor </script> -->',
                 'expected' => '<!---->'
             ],
             'uncommented_script_tag_only' => [
-                'html' => '<script> something </script>',
-                'expected' => '<script> something </script>'
+                'html' => '<script> lorem ipsum dolor </script>',
+                'expected' => '<script> lorem ipsum dolor </script>'
             ],
             'commented_and_uncommented' => [
-                'html' => '<script> something </script><!-- <script> something </script> -->',
-                'expected' => '<script> something </script><!---->'
+                'html' => '<script> lorem ipsum dolor </script><!-- <script> sit amet </script> -->',
+                'expected' => '<script> lorem ipsum dolor </script><!---->'
+            ],
+            'commented_new_line' => [
+                'html' => '<script> lorem ipsum dolor </script><!-- <script> sit amet
+ </script> -->',
+                'expected' => '<script> lorem ipsum dolor </script><!---->'
             ],
             'double_commented_and_uncommented' => [
-                'html' => '<script> lorem </script><!-- <script> loremRemoved </script> ipsum dolor <script> sitRemoved </script> amet --><script> lorem </script>',
-                'expected' => '<script> lorem </script><!----><script> lorem </script>'
+                'html' => '<script> lorem ipsum dolor </script><!-- <script> sit amet </script> lorem ipsum <script> dolor
+sit amet </script> amet --><script> lorem </script>',
+                'expected' => '<script> lorem ipsum dolor </script><!----><script> lorem </script>'
             ],
         ];
     }

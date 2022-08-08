@@ -14,7 +14,7 @@ use Overdose\MagentoOptimizer\Helper\Data;
 class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
 {
     const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
-    const JS_LOOK_FOR_COMMENTED_SCRIPT = '#(?<=<!--)(.*)(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)(.*)(?=-->)#';
+    const JS_LOOK_FOR_COMMENTED_SCRIPT = '#(?<=<!--)(.*)(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)(.*)(?=-->)#is';
 
     /**
      * @param Observer $observer
