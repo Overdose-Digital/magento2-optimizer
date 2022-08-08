@@ -14,7 +14,7 @@ use Overdose\MagentoOptimizer\Helper\Data;
 class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
 {
     const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
-    const JS_LOOK_FOR_COMMENTED_SCRIPT = '#(?<=<!--)(.*)(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)(.*)(?=-->)#is';
+    const JS_LOOK_FOR_COMMENTED_SCRIPT = '#<!--.*?-->#is';
 
     /**
      * @param Observer $observer
@@ -71,11 +71,17 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverI
      * @param string $html
      * @return string
      */
-    private function removeCommentContainingScript($html): ?string
+    private function removeCommentContainingScript($html): string
     {
-        $stripped = preg_replace(
+        $stripped = preg_replace_callback(
             static::JS_LOOK_FOR_COMMENTED_SCRIPT,
-            '',
+            static function ($htmlComment) {
+                if (strpos($htmlComment[0], '<script') !== false) {
+                    return '<!---->';
+                }
+
+                return $htmlComment[0];
+            },
             $html
         );
         return is_null($stripped) ? $html : $stripped;

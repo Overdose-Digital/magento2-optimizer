@@ -92,6 +92,14 @@ class ResponseSendBeforeOptimizeJSTest extends TestCase
 sit amet </script> amet --><script> lorem </script>',
                 'expected' => '<script> lorem ipsum dolor </script><!----><script> lorem </script>'
             ],
+            'html_comment_test' => [
+                'html' => "<h1>lorem ipsum</h1>
+<script>dolor sit amet</script>
+<!--<script> lorem ipsum dolor sit amet </script>-->",
+                'expected' => "<h1>lorem ipsum</h1>
+<script>dolor sit amet</script>
+<!---->"
+            ],
         ];
     }
 }
