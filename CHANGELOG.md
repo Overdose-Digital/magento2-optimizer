@@ -4,7 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.1] - 04-08-2022
+## [1.1.1] - 22-11-2022
+### Added
+- Added a feature to delay the launch of external scripts.
 ### Fixed
 - Fixed issue with commented script element getting executed after being moved to bottom.
 

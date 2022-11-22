@@ -2,15 +2,10 @@
 
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
-use Magento\Framework\App\Request\Http as RequestHttp;
-use Magento\Framework\App\Response\Http as ResponseHttp;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
 
-/**
- * Class ResponseSendBeforeOptimizeJS
- */
 class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
 {
     const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
@@ -26,7 +21,7 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverI
             return;
         }
 
-        /** @var RequestHttp|null $request */
+        /** @var \Magento\Framework\App\Request\Http|null $request */
         $request = $observer->getEvent()->getData('request');
 
         if ($request->isAjax()
@@ -36,6 +31,7 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverI
             return;
         }
 
+        //move js to the bottom page
         $this->moveJs($observer);
     }
 
@@ -45,7 +41,7 @@ class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverI
      */
     public function moveJs(Observer $observer)
     {
-        /** @var ResponseHttp|null $response */
+        /** @var \Magento\Framework\App\Response\Http|null $response */
         $response = $observer->getEvent()->getData('response');
 
         if (!$response) {

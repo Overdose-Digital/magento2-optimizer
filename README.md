@@ -23,11 +23,13 @@ composer update overdose/module-magento-optimizer
 - Adds default html attribute `loading="lazy"` to all images. Add html attribute `nolazy` to image to skip loadind lazy.
 - Features can be turned on separately, or work both at the same time.
 - All features can be disabled for specific page by controller/action name or by URL path.
+- Loading JS scripts with a delay.
 
 ## Configurations:
 - `od_optimizer/move_js_bottom_page/*`. JS options. Enabled by default.
 - `od_optimizer/remove_base_url/*`. URL options. Disabled by default.
 - `od_optimizer/lazy_load_image/*`. Lazy image options. Enabled by default except `gallery-placeholder__image`.
+- `od_optimizer/js_load_delay/*`. Load JS with delay options. Disabled by default.
 
 - For excluding controller: add in the field `{module}_{action}_{name}`, for example:`cms_index_index`
 - For excluding paths: add in the field for example "/gear/bags.html"

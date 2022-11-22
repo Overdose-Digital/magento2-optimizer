@@ -2,35 +2,44 @@
 
 namespace Overdose\MagentoOptimizer\Helper;
 
+use Magento\Framework\App\Helper\AbstractHelper;
+use Magento\Framework\App\Helper\Context;
 use Magento\Store\Model\ScopeInterface;
+use Overdose\MagentoOptimizer\Model\Config\Source\Influence;
 
-class Data extends \Magento\Framework\App\Helper\AbstractHelper
+class Data extends AbstractHelper
 {
-    const CONFIG_PATH_PREFIX = 'od_optimizer';
-    const KEY_FIELD_EXCLUDE_CONTROLLERS = 'exclude_controllers';
-    const KEY_FIELD_EXCLUDE_PATH = 'exclude_paths';
-    const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE = 'move_js_bottom_page';
-    const KEY_SCOPE_REMOVE_BASE_URL = 'remove_base_url';
-    const KEY_SCOPE_LAZY_LOAD_IMAGE = 'lazy_load_image';
+    const CONFIG_PATH_PREFIX                = 'od_optimizer';
+    const KEY_FIELD_EXCLUDE_CONTROLLERS     = 'exclude_controllers';
+    const KEY_FIELD_EXCLUDE_PATH            = 'exclude_paths';
+    const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE     = 'move_js_bottom_page';
+    const KEY_SCOPE_REMOVE_BASE_URL         = 'remove_base_url';
+    const KEY_SCOPE_JS_LOAD_DELAY           = 'js_load_delay';
+    const KEY_FIELD_ENABLE                  = 'enable';
+    const KEY_FIELD_TIMEOUT_DELAY           = 'timeout_delay';
+    const KEY_FIELD_INFLUENCE               = 'influence';
+    const KEY_FIELD_INFLUENCE_EXCLUDE       = 'influence_exclude';
+    const KEY_FIELD_INFLUENCE_INCLUDE       = 'influence_include';
+    const KEY_SCOPE_LAZY_LOAD_IMAGE         = 'lazy_load_image';
     const KEY_FIELD_EXCLUDE_IMAGE_HTML_CLASS = 'exclude_image_html_class';
 
     /**
      * Data constructor.
-     * @param \Magento\Framework\App\Helper\Context $context
+     * @param Context $context
      */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context
+        Context $context
     ) {
         parent::__construct($context);
     }
 
     /**
-     * @param $field
-     * @param null $store
+     * @param string $field
      * @param string $scope
+     * @param null $store
      * @return mixed
      */
-    public function getConfig($field, $scope, $store = null)
+    public function getConfig(string $field, string $scope, $store = null)
     {
         return $this->scopeConfig->getValue(
             self::CONFIG_PATH_PREFIX . '/' . $scope . '/' . $field,
@@ -44,10 +53,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function isRemoveUrlEnabled()
+    public function isRemoveUrlEnabled(): bool
     {
-        return (bool)$this->scopeConfig->isSetFlag(
-            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_REMOVE_BASE_URL . '/enable',
+        return $this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_REMOVE_BASE_URL . '/' . self::KEY_FIELD_ENABLE,
             ScopeInterface::SCOPE_STORE
         );
     }
@@ -57,10 +66,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function isMoveJsEnabled()
+    public function isMoveJsEnabled(): bool
     {
-        return (bool)$this->scopeConfig->isSetFlag(
-            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE . '/enable',
+        return $this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE . '/' . self::KEY_FIELD_ENABLE,
             ScopeInterface::SCOPE_STORE
         );
     }
@@ -72,7 +81,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function isLazyLoadImageEnabled(): bool
     {
-        return (bool)$this->scopeConfig->isSetFlag(
+        return $this->scopeConfig->isSetFlag(
             self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_LAZY_LOAD_IMAGE . '/enable',
             ScopeInterface::SCOPE_STORE
         );
@@ -90,5 +99,68 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         ]);
 
         return (string)$this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE);
+    }
+    
+    /**
+     * Check if enabled feature add load delay to js
+     *
+     * @return bool
+     */
+    public function isJsLoadDelayEnabled(): bool
+    {
+        return $this->scopeConfig->isSetFlag(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_JS_LOAD_DELAY . '/' . self::KEY_FIELD_ENABLE,
+            ScopeInterface::SCOPE_STORE
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getJsLoadDelayTimeout()
+    {
+        return $this->getConfig(self::KEY_FIELD_TIMEOUT_DELAY, self::KEY_SCOPE_JS_LOAD_DELAY);
+    }
+
+    /**
+     * @return string
+     */
+    public function getJsDelayExcludedFiles(): string
+    {
+        $excludedJsFiles = '';
+
+        if ($this->getJsDelayInfluenceMode() == Influence::ENABLE_ALL_VALUE) {
+            $excludedJsFiles = $this->getConfig(
+                self::KEY_FIELD_INFLUENCE_EXCLUDE,
+                self::KEY_SCOPE_JS_LOAD_DELAY
+            );
+        }
+
+        return $excludedJsFiles;
+    }
+
+    /**
+     * @return string
+     */
+    public function getJsDelayIncludedFiles(): string
+    {
+        $includedJsFiles = '';
+
+        if ($this->getJsDelayInfluenceMode() == Influence::ENABLE_CUSTOM_VALUE) {
+            $includedJsFiles = $this->getConfig(
+                self::KEY_FIELD_INFLUENCE_INCLUDE,
+                self::KEY_SCOPE_JS_LOAD_DELAY
+            );
+        }
+
+        return $includedJsFiles;
+    }
+
+    /**
+     * @return int
+     */
+    public function getJsDelayInfluenceMode(): int
+    {
+        return (int) $this->getConfig(self::KEY_FIELD_INFLUENCE, self::KEY_SCOPE_JS_LOAD_DELAY);
     }
 }
