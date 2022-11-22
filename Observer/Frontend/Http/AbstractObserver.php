@@ -24,7 +24,6 @@ class AbstractObserver
      */
     protected $storeManager;
 
-
     /**
      * AbstractObserver constructor.
      * @param Data $dataHelper
