@@ -11,10 +11,10 @@ use Overdose\MagentoOptimizer\Model\Config\Source\Influence;
 /**
  * class ResponseSendBeforeLoadDelayJs
  */
-class ResponseSendBeforeLoadDelayJs extends AbstractObserver implements ObserverInterface
+class LoadDelayJs extends AbstractObserver implements ObserverInterface
 {
-    const JS_LOOK_FOR_SCRIPT_STRING         = '@(<script[^<>]*>)(.*)</script>@msU';
-    const JS_LOOK_FOR_SCRIPT_STRING_SRC     = '@src="([^"]+)"@i';
+    const JS_LOOK_FOR_SCRIPT_STRING     = '@(<script[^<>]*>)(.*)</script>@msU';
+    const JS_LOOK_FOR_SCRIPT_STRING_SRC = '@src="([^"]+)"@i';
 
     /**
      * @var $jsLoadDelayTimeout
@@ -23,46 +23,23 @@ class ResponseSendBeforeLoadDelayJs extends AbstractObserver implements Observer
 
     /**
      * @param Observer $observer
-     * @return bool
+     * @return void
      */
-    public function execute(Observer $observer): bool
+    public function execute(Observer $observer)
     {
         $this->jsLoadDelayTimeout = $this->dataHelper->getJsLoadDelayTimeout();
 
-        if ($this->dataHelper->isJsLoadDelayEnabled() && $this->jsLoadDelayTimeout) {
-            /** @var $request Http */
-            $request = $observer->getEvent()->getRequest();
-            $jsFilePaths = [];
-
-            if ($request->isAjax()) {
-                return false;
-            }
-
-            if (!$this->checkControllersIfExcluded(
-                $request,
-                Data::KEY_FIELD_EXCLUDE_CONTROLLERS,
-                Data::KEY_SCOPE_JS_LOAD_DELAY
-            )) {
-                return false;
-            }
-
-            if (!$this->checkPathIfExcluded(
-                $request,
-                Data::KEY_FIELD_EXCLUDE_PATH,
-                Data::KEY_SCOPE_JS_LOAD_DELAY
-            )) {
-                return false;
-            }
-
+        if ($this->isDoDelay($observer)) {
             switch ($this->dataHelper->getJsDelayInfluenceMode()) {
                 case Influence::ENABLE_ALL_VALUE:
                     $jsFiles = $this->dataHelper->getJsDelayExcludedFiles();
-                break;
+                    break;
                 case Influence::ENABLE_CUSTOM_VALUE:
                     $jsFiles = $this->dataHelper->getJsDelayIncludedFiles();
-                break;
+                    break;
             }
 
+            $jsFilePaths = [];
             if (!empty($jsFiles)) {
                 foreach ($this->serializer->unserialize($jsFiles) as $file) {
                     if (isset($file['path']) && !empty($file['path'])) {
@@ -73,6 +50,45 @@ class ResponseSendBeforeLoadDelayJs extends AbstractObserver implements Observer
 
             $this->addDelayToJs($observer, $jsFilePaths);
         }
+    }
+
+    /**
+     * @param $observer
+     * @return bool
+     */
+    public function isDoDelay($observer)
+    {
+        if (!$this->dataHelper->isJsLoadDelayEnabled()) {
+            return false;
+        }
+
+        if (!$this->jsLoadDelayTimeout) {
+            return false;
+        }
+
+        /** @var $request Http */
+        $request = $observer->getEvent()->getRequest();
+        $jsFilePaths = [];
+
+        if ($request->isAjax()) {
+            return false;
+        }
+
+        if (!$this->checkControllersIfExcluded(
+            $request,
+            Data::KEY_FIELD_EXCLUDE_CONTROLLERS,
+            Data::KEY_SCOPE_JS_LOAD_DELAY
+        )) {
+            return false;
+        }
+
+        if (!$this->checkPathIfExcluded(
+            $request,
+            Data::KEY_FIELD_EXCLUDE_PATH,
+            Data::KEY_SCOPE_JS_LOAD_DELAY
+        )) {
+            return false;
+        }
 
         return true;
     }
@@ -82,17 +98,13 @@ class ResponseSendBeforeLoadDelayJs extends AbstractObserver implements Observer
      * @param array $jsFilePaths
      * @return void
      */
-    public function addDelayToJs(Observer $observer, array $jsFilePaths)
+    private function addDelayToJs(Observer $observer, array $jsFilePaths)
     {
         $response = $observer->getEvent()->getResponse();
         $html = $response->getContent();
         $influenceMode = $this->dataHelper->getJsDelayInfluenceMode();
 
-        if (!$this->jsLoadDelayTimeout) {
-            return;
-        }
-
-        $delayedJs = $this->getExternalScripts($html);
+        $delayedJs = $this->getDelayScripts($html);
 
         if (empty($delayedJs)) {
             return;
@@ -169,19 +181,19 @@ class ResponseSendBeforeLoadDelayJs extends AbstractObserver implements Observer
      * @param string $html
      * @return array
      */
-    private function getExternalScripts(string $html): array
+    private function getDelayScripts(string $html): array
     {
         $pattern = self::JS_LOOK_FOR_SCRIPT_STRING;
-        $externalJsScripts  = [];
+        $jsScripts  = [];
 
         if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 if (preg_match(self::JS_LOOK_FOR_SCRIPT_STRING_SRC, $match[1], $srcMatches)) {
-                    $externalJsScripts[] = ['row' => $match[0], 'url' => $srcMatches[1]];
+                    $jsScripts[] = ['row' => $match[0], 'url' => $srcMatches[1]];
                 }
             }
         }
 
-        return $externalJsScripts;
+        return $jsScripts;
     }
 }

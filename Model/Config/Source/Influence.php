@@ -6,8 +6,8 @@ use Magento\Framework\Data\OptionSourceInterface;
 
 class Influence implements OptionSourceInterface
 {
-    const ENABLE_ALL_VALUE      = 1;
-    const ENABLE_CUSTOM_VALUE   = 2;
+    const ENABLE_ALL_VALUE    = 1;
+    const ENABLE_CUSTOM_VALUE = 2;
 
     /**
      * @return array

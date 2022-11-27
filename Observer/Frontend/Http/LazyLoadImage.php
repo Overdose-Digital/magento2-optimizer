@@ -12,13 +12,14 @@ use Magento\Framework\App\Request\Http as RequestHttp;
 use Magento\Framework\App\Response\Http as ResponseHttp;
 use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
+use Overdose\MagentoOptimizer\Helper\Data;
 
 /**
  * ResponseSendBeforeLazyLoadImage class
  *
  * Used to add loading=lazy to all images
  */
-class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements ObserverInterface
+class LazyLoadImage extends AbstractObserver implements ObserverInterface
 {
     const IMG_LAZY_LOADING_LOOK_FOR_STRING = '/<img(?=\s|>)(?!(?:[^>=]|=([\'"])(?:(?!\1).)*\1)*?(\sloading=|\snolazy[=,\s,\/]))[^>]*>/';
 
@@ -46,7 +47,7 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
      * @param Observer $observer
      * @return void
      */
-    public function addLazyLoadToImage(Observer $observer): void
+    protected function addLazyLoadToImage(Observer $observer): void
     {
         /** @var ResponseHttp|null $response */
         $response = $observer->getEvent()->getData('response');
@@ -80,19 +81,11 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
     }
 
     /**
-     * @return string
-     */
-    private function getImgHtmlClassesForRegex(): string
-    {
-        return implode('|', $this->getLazyLoadExcludeImageHtmlClass());
-    }
-
-    /**
      * @return string|null
      */
-    private function getSkipImageByHtmlClassPattern(): ?string
+    protected function getSkipImageByHtmlClassPattern(): ?string
     {
-        $classes = $this->getImgHtmlClassesForRegex();
+        $classes = implode('|', $this->getLazyLoadExcludeImageHtmlClass());
 
         if (empty($classes)) {
             return null;
@@ -103,5 +96,70 @@ class ResponseSendBeforeLazyLoadImage extends AbstractObserver implements Observ
             $classes,
             $classes
         );
+    }
+
+    /**
+     * Check if loading=lazy attribute can be added to images
+     *
+     * @param RequestHttp $request
+     * @return bool
+     */
+    public function isAddLazyLoadToImage(RequestHttp $request): bool
+    {
+        if (!$this->dataHelper->isLazyLoadImageEnabled()) {
+            return false;
+        }
+
+        if ($request->isAjax()) {
+            return false;
+        }
+
+        if (!$this->checkControllersIfExcluded(
+            $request,
+            Data::KEY_FIELD_EXCLUDE_CONTROLLERS,
+            Data::KEY_SCOPE_LAZY_LOAD_IMAGE
+        )) {
+            return false;
+        }
+
+        if (!$this->checkPathIfExcluded(
+            $request,
+            Data::KEY_FIELD_EXCLUDE_PATH,
+            Data::KEY_SCOPE_LAZY_LOAD_IMAGE
+        )) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get classes list from config.
+     *
+     * @return string[]
+     */
+    protected function getLazyLoadExcludeImageHtmlClass(): array
+    {
+        try {
+            $value = $this->serializer->unserialize(
+                $this->dataHelper->getLazyLoadExcludeImageHtmlClassSerialized()
+            );
+        } catch (\Exception $e) {
+            $value = null;
+        }
+
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $result = [];
+
+        foreach ($value as $row) {
+            if ($htmlClass = $row['html_class'] ?? null) {
+                $result[] = $htmlClass;
+            }
+        }
+
+        return array_unique(array_filter($result));
     }
 }

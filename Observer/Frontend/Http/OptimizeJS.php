@@ -6,7 +6,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
 
-class ResponseSendBeforeOptimizeJS extends AbstractObserver implements ObserverInterface
+class OptimizeJS extends AbstractObserver implements ObserverInterface
 {
     const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
     const JS_LOOK_FOR_COMMENTED_SCRIPT = '#<!--.*?-->#is';
