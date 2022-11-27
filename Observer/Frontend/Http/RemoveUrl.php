@@ -6,7 +6,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Overdose\MagentoOptimizer\Helper\Data;
 
-class ResponseSendBeforeRemoveUrl extends AbstractObserver implements \Magento\Framework\Event\ObserverInterface
+class RemoveUrl extends AbstractObserver implements \Magento\Framework\Event\ObserverInterface
 {
     /**
      * @param Observer $observer

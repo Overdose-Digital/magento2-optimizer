@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1] - 22-11-2022
 ### Added
-- Added a feature to delay the launch of external scripts.
+- Added a feature to delay the launch of scripts.
 ### Fixed
 - Fixed issue with commented script element getting executed after being moved to bottom.
 

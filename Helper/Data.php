@@ -9,18 +9,21 @@ use Overdose\MagentoOptimizer\Model\Config\Source\Influence;
 
 class Data extends AbstractHelper
 {
-    const CONFIG_PATH_PREFIX                = 'od_optimizer';
-    const KEY_FIELD_EXCLUDE_CONTROLLERS     = 'exclude_controllers';
-    const KEY_FIELD_EXCLUDE_PATH            = 'exclude_paths';
-    const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE     = 'move_js_bottom_page';
-    const KEY_SCOPE_REMOVE_BASE_URL         = 'remove_base_url';
-    const KEY_SCOPE_JS_LOAD_DELAY           = 'js_load_delay';
-    const KEY_FIELD_ENABLE                  = 'enable';
-    const KEY_FIELD_TIMEOUT_DELAY           = 'timeout_delay';
-    const KEY_FIELD_INFLUENCE               = 'influence';
-    const KEY_FIELD_INFLUENCE_EXCLUDE       = 'influence_exclude';
-    const KEY_FIELD_INFLUENCE_INCLUDE       = 'influence_include';
-    const KEY_SCOPE_LAZY_LOAD_IMAGE         = 'lazy_load_image';
+    const CONFIG_PATH_PREFIX = 'od_optimizer';
+
+    // Groups
+    const KEY_SCOPE_MOVE_JS_BOTTOM_PAGE = 'move_js_bottom_page';
+    const KEY_SCOPE_REMOVE_BASE_URL     = 'remove_base_url';
+    const KEY_SCOPE_JS_LOAD_DELAY       = 'js_load_delay';
+    const KEY_SCOPE_LAZY_LOAD_IMAGE     = 'lazy_load_image';
+
+    const KEY_FIELD_ENABLE              = 'enable';
+    const KEY_FIELD_EXCLUDE_CONTROLLERS = 'exclude_controllers';
+    const KEY_FIELD_EXCLUDE_PATH        = 'exclude_paths';
+    const KEY_FIELD_TIMEOUT_DELAY       = 'timeout_delay';
+    const KEY_FIELD_INFLUENCE           = 'influence';
+    const KEY_FIELD_INFLUENCE_EXCLUDE   = 'influence_exclude';
+    const KEY_FIELD_INFLUENCE_INCLUDE   = 'influence_include';
     const KEY_FIELD_EXCLUDE_IMAGE_HTML_CLASS = 'exclude_image_html_class';
 
     /**
@@ -82,7 +85,7 @@ class Data extends AbstractHelper
     public function isLazyLoadImageEnabled(): bool
     {
         return $this->scopeConfig->isSetFlag(
-            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_LAZY_LOAD_IMAGE . '/enable',
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_LAZY_LOAD_IMAGE . '/' . self::KEY_FIELD_ENABLE,
             ScopeInterface::SCOPE_STORE
         );
     }
@@ -92,13 +95,10 @@ class Data extends AbstractHelper
      */
     public function getLazyLoadExcludeImageHtmlClassSerialized()
     {
-        $path = implode('/', [
-            self::CONFIG_PATH_PREFIX,
-            self::KEY_SCOPE_LAZY_LOAD_IMAGE,
-            self::KEY_FIELD_EXCLUDE_IMAGE_HTML_CLASS,
-        ]);
-
-        return (string)$this->scopeConfig->getValue($path, ScopeInterface::SCOPE_STORE);
+        return (string)$this->scopeConfig->getValue(
+            self::CONFIG_PATH_PREFIX . '/' . self::KEY_SCOPE_LAZY_LOAD_IMAGE . '/' . self::KEY_FIELD_EXCLUDE_IMAGE_HTML_CLASS,
+            ScopeInterface::SCOPE_STORE
+        );
     }
     
     /**

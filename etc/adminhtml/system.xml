@@ -109,7 +109,7 @@
                     <label>Include JS Paths</label>
                     <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\DelayJsNames</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
-                    <comment>Listed external JS file URL(or some part of path of URL) will be affected for JS delay. Usage: /some-url/somename.js</comment>
+                    <comment>Listed JS file URL(or some part of path of URL) will be affected for JS delay. Usage: /some-url/somename.js</comment>
                     <depends>
                         <field id="influence">2</field>
                     </depends>
@@ -118,7 +118,7 @@
                     <label>Exclude JS Paths</label>
                     <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\DelayJsNames</frontend_model>
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
-                    <comment>Listed external JS file URL(or some part of path of URL) will be affected for JS delay. Usage: /some-url/somename.js</comment>
+                    <comment>Listed JS file URL(or some part of path of URL) will be affected for JS delay. Usage: /some-url/somename.js</comment>
                     <depends>
                         <field id="influence">1</field>
                     </depends>
