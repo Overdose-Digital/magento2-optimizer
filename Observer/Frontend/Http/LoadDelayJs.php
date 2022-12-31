@@ -13,7 +13,7 @@ use Overdose\MagentoOptimizer\Model\Config\Source\Influence;
  */
 class LoadDelayJs extends AbstractObserver implements ObserverInterface
 {
-    const JS_LOOK_FOR_SCRIPT_STRING     = '@(<script[^<>]*>)(.*)</script>@msU';
+    const JS_LOOK_FOR_SCRIPT_STRING     = '@<script(?=\s|>)(?!(?:[^>=]|=)*?\snolazy)[^>]*>.*?</script>@si';
     const JS_LOOK_FOR_SCRIPT_STRING_SRC = '@src="([^"]+)"@i';
 
     /**
@@ -21,7 +21,14 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
      */
     private $jsLoadDelayTimeout = null;
 
+    private $delayedJs = [
+        'files' => [],
+        'inline' => []
+    ];
+
     /**
+     * Main call structure.
+     *
      * @param Observer $observer
      * @return void
      */
@@ -54,7 +61,7 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
 
     /**
      * @param $observer
-     * @return bool
+     * @return void
      */
     public function isDoDelay($observer)
     {
@@ -68,7 +75,6 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
 
         /** @var $request Http */
         $request = $observer->getEvent()->getRequest();
-        $jsFilePaths = [];
 
         if ($request->isAjax()) {
             return false;
@@ -94,6 +100,8 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
     }
 
     /**
+     * Replace JS in HTML.
+     *
      * @param Observer $observer
      * @param array $jsFilePaths
      * @return void
@@ -102,17 +110,50 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
     {
         $response = $observer->getEvent()->getResponse();
         $html = $response->getContent();
-        $influenceMode = $this->dataHelper->getJsDelayInfluenceMode();
 
-        $delayedJs = $this->getDelayScripts($html);
+        $this->getDelayScripts($html);
+        $html = $this->checkReplaceSrcJs($html, $jsFilePaths);
+        $html = $this->checkReplaceInlineJs($html);
 
-        if (empty($delayedJs)) {
-            return;
+        $response->setContent($html);
+    }
+
+    /**
+     * Match all <script*> tags: inline, not inline, template, x-magento-init.
+     * Skip tags with "nolazy" attribute.
+     * Collect data to class's parameter.
+     *
+     * @param string $html
+     * @return void
+     */
+    private function getDelayScripts(string $html)
+    {
+        $pattern = self::JS_LOOK_FOR_SCRIPT_STRING;
+
+        if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
+            foreach ($matches as $match) {
+                if (preg_match(self::JS_LOOK_FOR_SCRIPT_STRING_SRC, $match[0], $srcMatches)) {
+                    $this->delayedJs['files'][] = ['row' => $match[0], 'url' => $srcMatches[1]];
+                } else {
+                    $this->delayedJs['inline'][] = $match[0];
+                }
+            }
         }
+    }
 
+    /**
+     * Check configs and return page content with replaced "src" JS.
+     *
+     * @param string $html
+     * @param array $html
+     * @return string
+     */
+    protected function checkReplaceSrcJs($html, $jsFilePaths)
+    {
+        $influenceMode = $this->dataHelper->getJsDelayInfluenceMode();
         $srcWillDelay = [];
 
-        foreach ($delayedJs as $script) {
+        foreach ($this->delayedJs['files'] as $script) {
             if ($influenceMode == Influence::ENABLE_ALL_VALUE) {
                 if (!empty($jsFilePaths)) {
                     foreach ($jsFilePaths as $path) {
@@ -140,18 +181,20 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
         }
 
         if (!empty($srcWillDelay)) {
-            $result = $this->createJsScriptFunc($srcWillDelay);
+            $result = $this->createJsSrcScript($srcWillDelay);
             $html = str_replace('</body', $result . '</body', $html);
         }
 
-        $response->setContent($html);
+        return $html;
     }
 
     /**
+     * JS code that will create "script" tags with "src" attribute.
+     *
      * @param array $src
      * @return string
      */
-    private function createJsScriptFunc(array $src): string
+    private function createJsSrcScript(array $src): string
     {
         $result = '';
 
@@ -178,22 +221,31 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
     }
 
     /**
-     * @param string $html
-     * @return array
+     * Return page content with replaced inline JS.
+     *
+     * @param $html
+     * @return array|mixed|string|string[]
      */
-    private function getDelayScripts(string $html): array
+    protected function checkReplaceInlineJs($html)
     {
-        $pattern = self::JS_LOOK_FOR_SCRIPT_STRING;
-        $jsScripts  = [];
-
-        if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
-            foreach ($matches as $match) {
-                if (preg_match(self::JS_LOOK_FOR_SCRIPT_STRING_SRC, $match[1], $srcMatches)) {
-                    $jsScripts[] = ['row' => $match[0], 'url' => $srcMatches[1]];
-                }
+        if (!empty($this->delayedJs['inline'])) {
+            $inlineJS = '';
+            foreach ($this->delayedJs['inline'] as $inline) {
+                $html = str_replace($inline, '', $html);
+                $inlineJS .= $inline;
             }
+//            $inlineJS = '<script>derp</script>';
+            $result = '<script type="text/javascript">
+                            document.addEventListener("DOMContentLoaded", function() {
+                                setTimeout(function() {
+                                       document.body.innerHTML += ' . json_encode($inlineJS) . ';
+                                }, '. ((int) $this->jsLoadDelayTimeout * 1000) .');
+                            });
+                        </script>';
         }
 
-        return $jsScripts;
+        $html = str_replace('</body', $result . '</body', $html);
+
+        return $html;
     }
 }
