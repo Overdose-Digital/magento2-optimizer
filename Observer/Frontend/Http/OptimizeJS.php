@@ -8,7 +8,7 @@ use Overdose\MagentoOptimizer\Helper\Data;
 
 class OptimizeJS extends AbstractObserver implements ObserverInterface
 {
-    const JS_LOOK_FOR_STRING = '#(<script *\b(?!nodefer)\b\S+?(.*?)<\/script>)#is';
+    const JS_LOOK_FOR_STRING = '#<script(?=\s|>)(?!(?:[^>=]|=)*?\snodefer)[^>]*>.*?</script>#is';
     const JS_LOOK_FOR_COMMENTED_SCRIPT = '#<!--.*?-->#is';
 
     /**
@@ -36,6 +36,8 @@ class OptimizeJS extends AbstractObserver implements ObserverInterface
     }
 
     /**
+     * Match all <script*> tags: inline, not inline, template, x-magento-init.
+     * Skip tags with "nodefer" attribute.
      * @param Observer $observer
      * @return void
      */
@@ -54,7 +56,6 @@ class OptimizeJS extends AbstractObserver implements ObserverInterface
             static::JS_LOOK_FOR_STRING,
             static function ($script) use (&$deferredJs) {
                 $deferredJs .= $script[0];
-
                 return '';
             },
             $html
