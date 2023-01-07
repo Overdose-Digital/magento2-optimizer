@@ -4,26 +4,35 @@
         <od_optimizer>
             <move_js_bottom_page>
                 <enable>1</enable>
-                <exclude_controllers>[]</exclude_controllers>
-                <exclude_paths>[]</exclude_paths>
+                <exclude_js>{"_1673108740032_32":{"path":"var BASE_URL = "}}</exclude_js>
                 <how_to>
                     <![CDATA[Add attribute `nodefer` to prevent defer. For example: <script nodefer type="text/javascript"...]]>
 				</how_to>
             </move_js_bottom_page>
-            <remove_base_url>
+            <js_load_delay>
                 <enable>0</enable>
+                <timeout_delay>5</timeout_delay>
                 <exclude_controllers>[]</exclude_controllers>
                 <exclude_paths>[]</exclude_paths>
-                <info>
-                    <![CDATA[Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.]]>
-				</info>
-            </remove_base_url>
+                <how_to>
+                    <![CDATA[Add attribute `nolazy` to prevent lazy loading. For example: <script type="text/javascript" nolazy>...]]>
+                    <![CDATA[Better disable "Move JS" feature because it doesn't make sense with lazy feature.]]>
+                </how_to>
+            </js_load_delay>
             <lazy_load_image>
                 <enable>1</enable>
                 <exclude_controllers>[]</exclude_controllers>
                 <exclude_paths>[]</exclude_paths>
                 <exclude_image_html_class><![CDATA[{"_1653491087836_836":{"html_class":"gallery-placeholder__image"}}]]></exclude_image_html_class>
             </lazy_load_image>
+            <remove_base_url>
+                <enable>0</enable>
+                <exclude_controllers>[]</exclude_controllers>
+                <exclude_paths>[]</exclude_paths>
+                <info>
+                    <![CDATA[Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.]]>
+                </info>
+            </remove_base_url>
         </od_optimizer>
     </default>
 </config>
