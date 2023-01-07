@@ -19,11 +19,11 @@ composer update overdose/module-magento-optimizer
 ## Functionality
 ### Main features
 - Moves all js script in the bottom of page. Add html attribute `nodefer` to JS to skip moving.
+- Loading JS scripts with a delay. Add html attribute `nolazy` to JS to skip moving.
 - Remove Base Url from pages. Saves 55 bites on default Magento installation. Execution time about 0.000188 sec. So check profit if you decide enable it.
 - Adds default html attribute `loading="lazy"` to all images. Add html attribute `nolazy` to image to skip loadind lazy.
 - Features can be turned on separately, or work both at the same time.
 - All features can be disabled for specific page by controller/action name or by URL path.
-- Loading JS scripts with a delay.
 
 ## Configurations:
 - `od_optimizer/move_js_bottom_page/*`. JS options. Enabled by default.
