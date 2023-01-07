@@ -90,4 +90,22 @@ class AbstractObserver
 
         return true;
     }
+
+    /**
+     * @param string $skipJssString
+     * @return array
+     */
+    public function excludeJsString2Array($skipJssString)
+    {
+        $skipJssString = $this->dataHelper->getExcludedMoveFiles();
+        $skipJssArray = [];
+        if (!empty($skipJssString)) {
+            foreach ($this->serializer->unserialize($skipJssString) as $skip) {
+                if (isset($skip['path']) && !empty($skip['path'])) {
+                    $skipJssArray[] = $skip['path'];
+                }
+            }
+        }
+        return $skipJssArray;
+    }
 }

@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 07-01-2023
 ### Added
 - Added a feature to delay the launch of scripts.
+- Added feature "Exclude specific JS" for "Move to bottom" feature.
 ### Fixed
 - Fixed issue with commented script element getting executed after being moved to bottom.
 - Fixed "nodefer" attribute detecting (now not metter where it placed).

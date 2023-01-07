@@ -25,6 +25,10 @@ composer update overdose/module-magento-optimizer
 - Features can be turned on separately, or work both at the same time.
 - All features can be disabled for specific page by controller/action name or by URL path.
 
+**Lazy load JS**
+Page load without JS (except exluded). After 5 sec (default value for `od_optimizer/js_load_delay/timeout_delay` option) 
+all `<script>` tags will be added at the <body> end. Scripts will be added immediately if user start scrolling page.
+
 ## Configurations:
 - `od_optimizer/move_js_bottom_page/*`. JS options. Enabled by default.
 - `od_optimizer/remove_base_url/*`. URL options. Disabled by default.
@@ -33,6 +37,7 @@ composer update overdose/module-magento-optimizer
 
 - For excluding controller: add in the field `{module}_{action}_{name}`, for example:`cms_index_index`
 - For excluding paths: add in the field for example "/gear/bags.html"
+- For excluding specific script: use "Exclude JS Paths" option. Add part of script content. Excluding use simple `strpos()` function.
 - For excluding image from lazy loading use one of available methods: 
   - add "nolazy" attribute to img tag (this image will be skiped)
   - add appropriate HTML class of image via system config  
