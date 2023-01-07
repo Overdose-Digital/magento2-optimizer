@@ -78,6 +78,17 @@ class Data extends AbstractHelper
     }
 
     /**
+     * @return string
+     */
+    public function getExcludedMoveFiles(): string
+    {
+        return $this->getConfig(
+            'exclude_js',
+            self::KEY_SCOPE_MOVE_JS_BOTTOM_PAGE
+        );
+    }
+
+    /**
      * Check if enabled feature "use default html attribute loading="lazy" for images"
      *
      * @return bool

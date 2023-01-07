@@ -50,13 +50,25 @@ class OptimizeJS extends AbstractObserver implements ObserverInterface
             return;
         }
 
+        $skipJss = $this->excludeJsString2Array($this->dataHelper->getExcludedMoveFiles());
         $deferredJs = '';
         $html = $this->removeCommentContainingScript($response->getContent());
         $html = preg_replace_callback(
             static::JS_LOOK_FOR_STRING,
-            static function ($script) use (&$deferredJs) {
-                $deferredJs .= $script[0];
-                return '';
+            static function ($script) use ($skipJss, &$deferredJs) {
+                $skip = false;
+                foreach ($skipJss as $js) {
+                    if (strpos($script[0], $js)) {
+                        $skip = true;
+                        break;
+                    }
+                }
+                if (!$skip) {
+                    $deferredJs .= $script[0];
+                    return '';
+                } else {
+                    return $script[0];
+                }
             },
             $html
         );
@@ -76,7 +88,6 @@ class OptimizeJS extends AbstractObserver implements ObserverInterface
                 if (strpos($htmlComment[0], '<script') !== false) {
                     return '<!---->';
                 }
-
                 return $htmlComment[0];
             },
             $html

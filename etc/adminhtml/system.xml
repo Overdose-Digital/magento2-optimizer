@@ -11,7 +11,7 @@
 
             <group id="move_js_bottom_page" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label">
                 <label>Move JS</label>
-                <field id="enable" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10" translate="label" type="select">
+                <field id="enable" translate="label" type="select" showInDefault="1" showInStore="1" showInWebsite="1" sortOrder="10">
                     <label>Feature Enable</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                 </field>
@@ -27,7 +27,15 @@
                     <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
                     <comment>Listed path will be unaffected from defer. Usage: /gear/bags.html</comment>
                 </field>
-                <field id="how_to" translate="label" type="label" sortOrder="40" showInDefault="1" showInWebsite="0" showInStore="0">
+                <field id="exclude_js" translate="label" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude JS Paths</label>
+                    <frontend_model>Overdose\MagentoOptimizer\Block\Adminhtml\Form\Field\DelayJsNames</frontend_model>
+                    <backend_model>Magento\Config\Model\Config\Backend\Serialized\ArraySerialized</backend_model>
+                    <comment><![CDATA[Listed JS file URL(or some part of path of URL) will be affected for JS delay. Usage: /some-url/somename.js.<br/>
+                        Or part of script content. Excluding use simple <code>strpos()</code> function.]]>
+                    </comment>
+                </field>
+                <field id="how_to" translate="label" type="label" sortOrder="50" showInDefault="1" showInWebsite="0" showInStore="0">
                     <label>Help</label>
                 </field>
             </group>

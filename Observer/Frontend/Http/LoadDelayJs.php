@@ -44,14 +44,7 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
                     break;
             }
 
-            $jsFilePaths = [];
-            if (!empty($jsFiles)) {
-                foreach ($this->serializer->unserialize($jsFiles) as $file) {
-                    if (isset($file['path']) && !empty($file['path'])) {
-                        $jsFilePaths[] = $file['path'];
-                    }
-                }
-            }
+            $jsFilePaths = $this->excludeJsString2Array($jsFiles);
 
             $this->addDelayToJs($observer, $jsFilePaths);
         }
@@ -109,7 +102,7 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
         $response = $observer->getEvent()->getResponse();
         $html = $response->getContent();
 
-        $this->getDelayScripts($html);
+        $this->prepareScripts($html);
         $html = $this->checkReplaceJs($html, $jsFilePaths);
 
         $response->setContent($html);
@@ -123,7 +116,7 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
      * @param string $html
      * @return void
      */
-    private function getDelayScripts(string $html)
+    private function prepareScripts(string $html)
     {
         if (preg_match_all(self::JS_LOOK_FOR_SCRIPT_STRING, $html, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
@@ -155,13 +148,32 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
      */
     protected function checkReplaceJs($html, $jsFilePaths)
     {
+        $scriptsWillDelay = $this->getDelayScricts($jsFilePaths);
+
+        if (!empty($scriptsWillDelay)) {
+            list($scriptsWillDelay, $html) = $this->updateDelayScripts($scriptsWillDelay, $html);
+            $result = $this->createJsScript($scriptsWillDelay);
+            $html = str_replace('</body', $result . '</body', $html);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Check which scripts need load lazy. Return array of scripts.
+     * Uses $this->detectedJs param.
+     *
+     * @param array $jsExcludes
+     * @return array
+     */
+    public function getDelayScricts($jsExcludes)
+    {
         $influenceMode = $this->dataHelper->getJsDelayInfluenceMode();
         $scriptsWillDelay = [];
-
         foreach ($this->detectedJs as $script) {
             if ($influenceMode == Influence::ENABLE_ALL_VALUE) {
-                if (!empty($jsFilePaths)) {
-                    foreach ($jsFilePaths as $path) {
+                if (!empty($jsExcludes)) {
+                    foreach ($jsExcludes as $path) {
                         if (strpos($script['attributes'], $path) !== false) {
                             break;
                         } else {
@@ -172,8 +184,8 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
                     $scriptsWillDelay[] = $script;
                 }
             } else {
-                if (!empty($jsFilePaths)) {
-                    foreach ($jsFilePaths as $path) {
+                if (!empty($jsExcludes)) {
+                    foreach ($jsExcludes as $path) {
                         if (strpos($script['attributes'], $path) !== false) {
                             $scriptsWillDelay[] = $script;
                         }
@@ -181,39 +193,45 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
                 }
             }
         }
-        unset($script, $path, $jsFilePaths);
+        return $scriptsWillDelay;
+    }
 
-        if (!empty($scriptsWillDelay)) {
-            foreach ($scriptsWillDelay as &$script) {
-                // remove from a page
-                $html = str_replace($script['row'], '', $html);
-                // remove not needed anymore data from array
-                unset($script['row']);
-                // prepare array of attributes and replace string with array
-                $attributes = [];
-                if ($script['attributes']) {
-                    foreach (array_filter(explode(' ', $script['attributes'])) as $attribute) {
-                        if (strpos($attribute, '=')) {
-                            list($attrName, $attrValue) = explode('=', $attribute);
-                            $attrValue = trim($attrValue,'\'"');
-                        } else {
-                            $attrName = $attribute;
-                            $attrValue = '';
-                        }
-                        $attributes[] = [
-                            'name' => $attrName,
-                            'value' => $attrValue
-                        ];
+    /**
+     * Remove no needed data. Change attributes from string to array.
+     * Replace script from page.
+     * Return array of updated scripts and page content.
+     *
+     * @param array $scriptsWillDelay
+     * @param string $html
+     * @return array //[$scriptsWillDelay, $html]
+     */
+    public function updateDelayScripts($scriptsWillDelay, $html)
+    {
+        foreach ($scriptsWillDelay as &$script) {
+            // remove from a page
+            $html = str_replace($script['row'], '', $html);
+            // remove not needed anymore data from array
+            unset($script['row']);
+            // prepare array of attributes and replace string with array
+            $attributes = [];
+            if ($script['attributes']) {
+                foreach (array_filter(explode(' ', $script['attributes'])) as $attribute) {
+                    if (strpos($attribute, '=')) {
+                        list($attrName, $attrValue) = explode('=', $attribute);
+                        $attrValue = trim($attrValue,'\'"');
+                    } else {
+                        $attrName = $attribute;
+                        $attrValue = '';
                     }
+                    $attributes[] = [
+                        'name' => $attrName,
+                        'value' => $attrValue
+                    ];
                 }
-                $script['attributes'] = $attributes;
             }
-
-            $result = $this->createJsScript($scriptsWillDelay);
-            $html = str_replace('</body', $result . '</body', $html);
+            $script['attributes'] = $attributes;
         }
-
-        return $html;
+        return [$scriptsWillDelay, $html];
     }
 
     /**

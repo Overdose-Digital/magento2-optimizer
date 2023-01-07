@@ -4,8 +4,7 @@
         <od_optimizer>
             <move_js_bottom_page>
                 <enable>1</enable>
-                <exclude_controllers>[]</exclude_controllers>
-                <exclude_paths>[]</exclude_paths>
+                <exclude_js>{"_1673108740032_32":{"path":"var BASE_URL = "}}</exclude_js>
                 <how_to>
                     <![CDATA[Add attribute `nodefer` to prevent defer. For example: <script nodefer type="text/javascript"...]]>
 				</how_to>
@@ -17,6 +16,7 @@
                 <exclude_paths>[]</exclude_paths>
                 <how_to>
                     <![CDATA[Add attribute `nolazy` to prevent lazy loading. For example: <script type="text/javascript" nolazy>...]]>
+                    <![CDATA[Better disable "Move JS" feature because it doesn't make sense with lazy feature.]]>
                 </how_to>
             </js_load_delay>
             <lazy_load_image>
