@@ -13,18 +13,16 @@ use Overdose\MagentoOptimizer\Model\Config\Source\Influence;
  */
 class LoadDelayJs extends AbstractObserver implements ObserverInterface
 {
-    const JS_LOOK_FOR_SCRIPT_STRING     = '@<script(?=\s|>)(?!(?:[^>=]|=)*?\snolazy)[^>]*>.*?</script>@si';
-    const JS_LOOK_FOR_SCRIPT_STRING_SRC = '@src="([^"]+)"@i';
+    const JS_LOOK_FOR_SCRIPT_STRING = '@<script(?=\s|>)(?!(?:[^>=]|=)*?\snolazy)[^>]*>.*?</script>@si';
+    const JS_LOOK_FOR_SCRIPT_SKIP   = 'var BASE_URL = ';
+    const JS_LOOK_FOR_SCRIPT_DATA   = '@<script(.*?)>(.*?)</script>@is';
 
     /**
      * @var $jsLoadDelayTimeout
      */
     private $jsLoadDelayTimeout = null;
 
-    private $delayedJs = [
-        'files' => [],
-        'inline' => []
-    ];
+    private $detectedJs = [];
 
     /**
      * Main call structure.
@@ -112,8 +110,7 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
         $html = $response->getContent();
 
         $this->getDelayScripts($html);
-        $html = $this->checkReplaceSrcJs($html, $jsFilePaths);
-        $html = $this->checkReplaceInlineJs($html);
+        $html = $this->checkReplaceJs($html, $jsFilePaths);
 
         $response->setContent($html);
     }
@@ -128,16 +125,24 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
      */
     private function getDelayScripts(string $html)
     {
-        $pattern = self::JS_LOOK_FOR_SCRIPT_STRING;
-
-        if (preg_match_all($pattern, $html, $matches, PREG_SET_ORDER)) {
+        if (preg_match_all(self::JS_LOOK_FOR_SCRIPT_STRING, $html, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
-                if (preg_match(self::JS_LOOK_FOR_SCRIPT_STRING_SRC, $match[0], $srcMatches)) {
-                    $this->delayedJs['files'][] = ['row' => $match[0], 'url' => $srcMatches[1]];
-                } else {
-                    $this->delayedJs['inline'][] = $match[0];
+                // Skip important basic inline script
+                if (strpos($match[0], self::JS_LOOK_FOR_SCRIPT_SKIP) === false) {
+                    // get "<script " attributes and content
+                    preg_match(self::JS_LOOK_FOR_SCRIPT_DATA, $match[0], $scriptData);
+
+                    $attributes = (isset($scriptData[1])) ? trim($scriptData[1]) : '';
+                    $content = (isset($scriptData[2])) ? trim($scriptData[2]) : '';
+
+                    $this->detectedJs[] = [
+                        'row' => $match[0],
+                        'attributes' => $attributes,
+                        'content' => $content,
+                    ];
                 }
             }
+            unset($matches, $match, $scriptData, $attributes, $content);
         }
     }
 
@@ -148,40 +153,63 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
      * @param array $html
      * @return string
      */
-    protected function checkReplaceSrcJs($html, $jsFilePaths)
+    protected function checkReplaceJs($html, $jsFilePaths)
     {
         $influenceMode = $this->dataHelper->getJsDelayInfluenceMode();
-        $srcWillDelay = [];
+        $scriptsWillDelay = [];
 
-        foreach ($this->delayedJs['files'] as $script) {
+        foreach ($this->detectedJs as $script) {
             if ($influenceMode == Influence::ENABLE_ALL_VALUE) {
                 if (!empty($jsFilePaths)) {
                     foreach ($jsFilePaths as $path) {
-                        if (strpos($script['url'], $path) !== false) {
+                        if (strpos($script['attributes'], $path) !== false) {
                             break;
                         } else {
-                            $srcWillDelay[] = $script['url'];
-                            $html = str_replace($script['row'], '', $html);
+                            $scriptsWillDelay[] = $script;
                         }
                     }
                 } else {
-                    $srcWillDelay[] = $script['url'];
-                    $html = str_replace($script['row'], '', $html);
+                    $scriptsWillDelay[] = $script;
                 }
             } else {
                 if (!empty($jsFilePaths)) {
                     foreach ($jsFilePaths as $path) {
-                        if (strpos($script['url'], $path) !== false) {
-                            $srcWillDelay[] = $script['url'];
-                            $html = str_replace($script['row'], '', $html);
+                        if (strpos($script['attributes'], $path) !== false) {
+                            $scriptsWillDelay[] = $script;
                         }
                     }
                 }
             }
         }
+        unset($script, $path, $jsFilePaths);
 
-        if (!empty($srcWillDelay)) {
-            $result = $this->createJsSrcScript($srcWillDelay);
+        if (!empty($scriptsWillDelay)) {
+            foreach ($scriptsWillDelay as &$script) {
+                // remove from a page
+                $html = str_replace($script['row'], '', $html);
+                // remove not needed anymore data from array
+                unset($script['row']);
+                // prepare array of attributes and replace string with array
+                $attributes = [];
+                if ($script['attributes']) {
+                    foreach (array_filter(explode(' ', $script['attributes'])) as $attribute) {
+                        if (strpos($attribute, '=')) {
+                            list($attrName, $attrValue) = explode('=', $attribute);
+                            $attrValue = trim($attrValue,'\'"');
+                        } else {
+                            $attrName = $attribute;
+                            $attrValue = '';
+                        }
+                        $attributes[] = [
+                            'name' => $attrName,
+                            'value' => $attrValue
+                        ];
+                    }
+                }
+                $script['attributes'] = $attributes;
+            }
+
+            $result = $this->createJsScript($scriptsWillDelay);
             $html = str_replace('</body', $result . '</body', $html);
         }
 
@@ -189,63 +217,51 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
     }
 
     /**
-     * JS code that will create "script" tags with "src" attribute.
+     * JS code that will create "script" tags with attributes.
      *
-     * @param array $src
+     * @param array $scripts
      * @return string
      */
-    private function createJsSrcScript(array $src): string
+    private function createJsScript(array $scripts): string
     {
-        $result = '';
-
-        if ($src) {
-            $srcRow = json_encode($src);
-
-            $result = '<script type="text/javascript">
-                            document.addEventListener("DOMContentLoaded", function() {
-                                setTimeout(function() {
-                                       var headerEl = document.getElementsByTagName("head")[0];
-                                       const srcArr =' . $srcRow .';
-                                       for (let el of srcArr) {
-                                           var script = document.createElement("script");
-                                           script.type = "text/javascript";
-                                           script.src = el;
-                                           headerEl.appendChild(script);
-                                       }
-                                }, '. ((int) $this->jsLoadDelayTimeout * 1000) .');
-                            });
-                        </script>';
+        if (!$scripts) {
+            return '';
         }
+
+        $scripts = json_encode($scripts);
+
+        $result = '<script type="text/javascript">
+                       let rendered = false;
+                       function renderScripts() {
+                           if (rendered) {
+                               return;
+                           }
+                           
+                           const scripts =' . $scripts . ';
+                           for (let lazyScript of scripts) {
+                               var script = document.createElement("script");
+                               
+                               for (let attribute of lazyScript.attributes) {
+                                   script.setAttribute(attribute.name, attribute.value);
+                               }
+                               if (lazyScript.content) {
+                                   script.text = lazyScript.content;
+                               }
+                               
+                               document.body.appendChild(script);
+                           }
+                       }
+                       
+                       document.addEventListener("DOMContentLoaded", function() {
+                           setTimeout(function() {
+                               renderScripts();
+                           }, '. ((int) $this->jsLoadDelayTimeout * 1000) .');
+                       });
+                       document.addEventListener("scroll", (event) => {
+                           renderScripts();
+                       });
+                   </script>';
 
         return $result;
-    }
-
-    /**
-     * Return page content with replaced inline JS.
-     *
-     * @param $html
-     * @return array|mixed|string|string[]
-     */
-    protected function checkReplaceInlineJs($html)
-    {
-        if (!empty($this->delayedJs['inline'])) {
-            $inlineJS = '';
-            foreach ($this->delayedJs['inline'] as $inline) {
-                $html = str_replace($inline, '', $html);
-                $inlineJS .= $inline;
-            }
-//            $inlineJS = '<script>derp</script>';
-            $result = '<script type="text/javascript">
-                            document.addEventListener("DOMContentLoaded", function() {
-                                setTimeout(function() {
-                                       document.body.innerHTML += ' . json_encode($inlineJS) . ';
-                                }, '. ((int) $this->jsLoadDelayTimeout * 1000) .');
-                            });
-                        </script>';
-        }
-
-        $html = str_replace('</body', $result . '</body', $html);
-
-        return $html;
     }
 }
