@@ -2,7 +2,6 @@
 
 namespace Overdose\MagentoOptimizer\Observer\Frontend\Http;
 
-use Magento\Framework\App\Request\Http;
 use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Overdose\MagentoOptimizer\Helper\Data;
@@ -23,7 +22,6 @@ class AbstractObserver
      * @var StoreManagerInterface
      */
     protected $storeManager;
-
 
     /**
      * AbstractObserver constructor.
@@ -94,65 +92,20 @@ class AbstractObserver
     }
 
     /**
-     * Check if loading=lazy attribute can be added to images
-     *
-     * @param Http $request
-     * @return bool
+     * @param string $skipJssString
+     * @return array
      */
-    public function isAddLazyLoadToImage(Http $request): bool
+    public function excludeJsString2Array($skipJssString)
     {
-        if ($this->dataHelper->isLazyLoadImageEnabled()) {
-            if ($request->isAjax()) {
-                return false;
-            }
-
-            if (!$this->checkControllersIfExcluded(
-                $request,
-                Data::KEY_FIELD_EXCLUDE_CONTROLLERS,
-                Data::KEY_SCOPE_LAZY_LOAD_IMAGE
-            )) {
-                return false;
-            }
-
-            if (!$this->checkPathIfExcluded(
-                $request,
-                Data::KEY_FIELD_EXCLUDE_PATH,
-                Data::KEY_SCOPE_LAZY_LOAD_IMAGE
-            )) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getLazyLoadExcludeImageHtmlClass(): array
-    {
-        try {
-            $value = $this->serializer->unserialize(
-                $this->dataHelper->getLazyLoadExcludeImageHtmlClassSerialized()
-            );
-        } catch (\Exception $e) {
-            $value = null;
-        }
-
-        if (!is_array($value)) {
-            return [];
-        }
-
-        $result = [];
-
-        foreach ($value as $row) {
-            if ($htmlClass = $row['html_class'] ?? null) {
-                $result[] = $htmlClass;
+        $skipJssString = $this->dataHelper->getExcludedMoveFiles();
+        $skipJssArray = [];
+        if (!empty($skipJssString)) {
+            foreach ($this->serializer->unserialize($skipJssString) as $skip) {
+                if (isset($skip['path']) && !empty($skip['path'])) {
+                    $skipJssArray[] = $skip['path'];
+                }
             }
         }
-
-        return array_unique(array_filter($result));
+        return $skipJssArray;
     }
 }
