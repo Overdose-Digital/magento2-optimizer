@@ -4,7 +4,8 @@
     "type": "magento2-module",
     "license": [],
     "require": {
-        "magento/framework": "*"
+        "magento/framework": "*",
+        "overdose/module-core": "*"
     },
     "autoload": {
         "files": [
@@ -14,5 +15,5 @@
             "Overdose\\MagentoOptimizer\\": ""
         }
     },
-    "version": "1.2.0"
+    "version": "1.2.1"
 }
