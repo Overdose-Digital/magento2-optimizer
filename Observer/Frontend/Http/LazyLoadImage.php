@@ -76,8 +76,11 @@ class LazyLoadImage extends AbstractObserver implements ObserverInterface
             },
             $response->getContent()
         );
+        
+        if ($content) {
+            $response->setContent($content);
+        }
 
-        $response->setContent($content);
     }
 
     /**
