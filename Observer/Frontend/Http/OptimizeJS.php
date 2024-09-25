@@ -72,7 +72,7 @@ class OptimizeJS extends AbstractObserver implements ObserverInterface
             },
             $html
         );
-        $html = str_replace('</body', $deferredJs . '</body', $html);
+        $html = str_replace('</body', $deferredJs . '</body', $html??'');
         $response->setContent($html);
     }
 
