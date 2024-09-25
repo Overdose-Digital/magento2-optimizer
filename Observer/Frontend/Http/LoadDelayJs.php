@@ -153,7 +153,7 @@ class LoadDelayJs extends AbstractObserver implements ObserverInterface
         if (!empty($scriptsWillDelay)) {
             list($scriptsWillDelay, $html) = $this->updateDelayScripts($scriptsWillDelay, $html);
             $result = $this->createJsScript($scriptsWillDelay);
-            $html = str_replace('</body', $result . '</body', $html);
+            $html = str_replace('</body', $result . '</body', $html??'');
         }
 
         return $html;
