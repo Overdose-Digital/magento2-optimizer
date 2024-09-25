@@ -72,7 +72,7 @@ class LazyLoadImage extends AbstractObserver implements ObserverInterface
                     ? '<img loading="lazy" '
                     : '<img loading=\"lazy\" ';
 
-                return str_replace('<img', $replace, $imgHtml);
+                return str_replace('<img', $replace, $imgHtml??'');
             },
             $response->getContent()
         );
