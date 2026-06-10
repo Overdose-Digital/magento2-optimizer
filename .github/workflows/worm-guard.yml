@@ -25,7 +25,7 @@ jobs:
           M4="$(printf 'wuqktam%s' 'ceigynzbosdctpusocrjhrflovnxrt')"
           M5="$(printf 'Cot%%3t%s' '=shtP')"
           if git grep -I -l -F -e "$M1" -e "$M2" -e "$M3" -e "$M4" -e "$M5" \
-               -- ':!.github/workflows/worm-guard.yml' >/tmp/hits 2>/dev/null && [ -s /tmp/hits ]; then
+               -- ':!.github/workflows/worm-guard.yml' ':!.github/worm-guard/**' >/tmp/hits 2>/dev/null && [ -s /tmp/hits ]; then
             echo "::error::Worm payload marker found in:"; cat /tmp/hits; exit 1
           fi
 
@@ -64,4 +64,39 @@ jobs:
                 echo "::error::Worm .gitignore artifact line present: $a"; exit 1
               fi
             done
+          fi
+
+      - name: Reject disguised-binary assets and VS Code autorun
+        run: |
+          bad=0
+          while IFS= read -r -d '' f; do
+            case "$f" in
+              *.woff|*.woff2|*.ttf|*.otf|*.eot|*.png|*.jpg|*.jpeg|*.gif|*.webp|*.ico|*.pdf)
+                mime=$(file -b --mime-type "$f")
+                case "$mime" in
+                  text/*|application/javascript|application/x-shellscript|application/json)
+                    echo "::error file=$f::extension claims a binary asset but content is '$mime' (planted script?)"
+                    bad=1 ;;
+                esac ;;
+            esac
+          done < <(git ls-files -z)
+          if grep -rEl '"runOn"[[:space:]]*:[[:space:]]*"folderOpen"' .vscode/ 2>/dev/null; then
+            echo "::error::VS Code task with runOn=folderOpen detected (auto-exec on folder open)"
+            bad=1
+          fi
+          exit $bad
+
+      - name: YARA scan (Forge core pack + PolinRider campaign rules)
+        run: |
+          set -uo pipefail
+          sudo apt-get install -y -qq yara >/dev/null 2>&1
+          curl -sSLo /tmp/forge.zip \
+            https://github.com/YARAHQ/yara-forge/releases/latest/download/yara-forge-rules-core.zip
+          unzip -qo /tmp/forge.zip -d /tmp/forge
+          # scan tracked files only (skips .git/), excluding the vendored rules themselves
+          git ls-files -z -- ':!.github/worm-guard/**' > /tmp/files.z
+          xargs -0 -r yara -w /tmp/forge/packages/core/yara-rules-core.yar < /tmp/files.z > /tmp/yara-hits.txt 2>/dev/null || true
+          xargs -0 -r yara -w .github/worm-guard/campaign-rules.yar     < /tmp/files.z >> /tmp/yara-hits.txt 2>/dev/null || true
+          if [ -s /tmp/yara-hits.txt ]; then
+            echo "::error::YARA detections (rule + file):"; sort -u /tmp/yara-hits.txt; exit 1
           fi
