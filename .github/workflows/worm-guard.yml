@@ -13,12 +13,20 @@ jobs:
       - uses: actions/checkout@v5
         with: { fetch-depth: 1 }
 
-      - name: Reject worm marker
+      - name: Reject worm markers
         run: |
-          # marker assembled from fragments so this file is never itself a hit
-          MARKER="$(printf '_%s%s' '$' '_1e42')"
-          if git grep -I -l -F -e "$MARKER" -- ':!.github/workflows/worm-guard.yml' >/tmp/hits 2>/dev/null && [ -s /tmp/hits ]; then
-            echo "::error::Worm loader variable found in:"; cat /tmp/hits; exit 1
+          # markers assembled from fragments so this file is never itself a hit:
+          # loader var, payload preamble, PolinRider obfuscation sigs (March family
+          # rmcej/otb + scrambled-constructor) and the April 2026 evasion variant
+          # (per OpenSourceMalware/PolinRider multi-variant rule)
+          M1="$(printf '_%s%s' '$' '_1e42')"
+          M2="$(printf "global['%s']=" '!')"
+          M3="$(printf 'rmcej%%%s%%' 'otb')"
+          M4="$(printf 'wuqktam%s' 'ceigynzbosdctpusocrjhrflovnxrt')"
+          M5="$(printf 'Cot%%3t%s' '=shtP')"
+          if git grep -I -l -F -e "$M1" -e "$M2" -e "$M3" -e "$M4" -e "$M5" \
+               -- ':!.github/workflows/worm-guard.yml' >/tmp/hits 2>/dev/null && [ -s /tmp/hits ]; then
+            echo "::error::Worm payload marker found in:"; cat /tmp/hits; exit 1
           fi
 
       - name: Reject canonical worm blobs
