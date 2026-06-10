@@ -31,28 +31,34 @@ jobs:
 
       - name: Reject canonical worm blobs
         run: |
+          # ONLY blobs verified malicious by content (2026-06-10): the woff2 JS
+          # payload, the folderOpen-autorun tasks.json that executes it, and the
+          # temp_auto_push.bat date-forging propagation script. The earlier list
+          # also carried .vscode/{launch,settings}.json + spellright.dict SHAs —
+          # those are BENIGN shared-template boilerplate (no marker, legit dev
+          # files), removed to stop clean repos failing the gate.
           for sha in 8e14837c2c9eb2fd21e15ddbd40b267491764593 \
                     5e226620d2e360205cc8634e3c581a008d382561 \
-                    a5177abe1a03fb01906b2deb0bdfcc3201e8c832 \
-                    934d55548c36ff0e330f2a2ba69bf74b10a7dcba \
-                    51b1974952958055878c8531202048c561c6f3a2 \
                     963ef84d9d685b8debaef1aa574c18c76be5e148; do
             if git ls-tree -r HEAD | grep -q "$sha"; then
               echo "::error::Canonical worm blob $sha present in tree"; exit 1
             fi
           done
 
-      - name: Reject worm cargo paths
+      - name: Reject worm propagation artifacts
         run: |
-          for p in public/fonts/fa-solid-400.woff2 \
-                   .vscode/tasks.json \
-                   .vscode/launch.json \
-                   .vscode/spellright.dict \
-                   temp_auto_push.bat \
+          # Paths with NO legitimate use — worm propagation/forensic artifacts only.
+          # NOTE: .vscode/{tasks,launch,settings}.json, .vscode/spellright.dict and
+          # public/fonts/fa-solid-400.woff2 are deliberately NOT path-checked here —
+          # all have legitimate uses; the malicious instances are caught by the
+          # marker grep, the canonical-blob check, the magic-byte check, the precise
+          # folderOpen check below, and YARA. Detect those by content, not filename.
+          for p in temp_auto_push.bat \
                    temp_interactive_push.bat \
-                   branch_structure.json; do
+                   branch_structure.json \
+                   config.bat; do
             if [ -e "$p" ]; then
-              echo "::error::Worm cargo path present: $p"; exit 1
+              echo "::error::Worm propagation artifact present: $p"; exit 1
             fi
           done
 
@@ -80,10 +86,18 @@ jobs:
                 esac ;;
             esac
           done < <(git ls-files -z)
-          if grep -rEl '"runOn"[[:space:]]*:[[:space:]]*"folderOpen"' .vscode/ 2>/dev/null; then
-            echo "::error::VS Code task with runOn=folderOpen detected (auto-exec on folder open)"
-            bad=1
-          fi
+          # Precise autorun check: a folderOpen task is only flagged when it ALSO
+          # executes a font/binary-asset file or pipes a download to a shell — the
+          # worm's signature (node ./public/fonts/fa-solid-400.woff2 on folderOpen,
+          # or curl <c2> | bash). A plain folderOpen task (e.g. auto-lint/watch) is
+          # legitimate and NOT flagged, so this won't false-positive on real setups.
+          for j in $(git ls-files '.vscode/*.json' 2>/dev/null); do
+            if grep -q '"folderOpen"' "$j" 2>/dev/null && \
+               grep -Eq '\.(woff2?|ttf|otf|eot)|curl[^|]*\||wget[^|]*\|' "$j" 2>/dev/null; then
+              echo "::error file=$j::folderOpen task executes a binary asset or pipes to shell (worm autorun)"
+              bad=1
+            fi
+          done
           exit $bad
 
       - name: YARA scan (Forge core pack + PolinRider campaign rules)
